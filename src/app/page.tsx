@@ -34,9 +34,9 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <a href="#features" className="text-sm text-muted hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="text-sm text-muted hover:text-white transition-colors">How it works</a>
-            <button className="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
-              Get Started
-            </button>
+            <a href="/dashboard" className="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
+              Dashboard
+            </a>
           </div>
         </div>
       </nav>

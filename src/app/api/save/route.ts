@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     let title = '';
 
     if (content) {
-      const prompt = `Extract the following from this web content:
+      try {
+        const prompt = `Extract the following from this web content:
 1. A 2-3 sentence summary
 2. 3-5 relevant tags (single words, lowercase)
 3. The title (if not clear, create a short descriptive one)
@@ -48,17 +49,17 @@ ${content.slice(0, 3000)}
 Respond in JSON format:
 {"summary": "...", "tags": ["...", "..."], "title": "..."}`;
 
-      const completion = await getOpenAI().chat.completions.create({
-        model: 'meta-llama/llama-3.1-8b-instruct',
-        messages: [{ role: 'user', content: prompt }],
-      });
+        const completion = await getOpenAI().chat.completions.create({
+          model: 'openrouter/free',
+          messages: [{ role: 'user', content: prompt }],
+        });
 
-      try {
         const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
         summary = result.summary || '';
         tags = result.tags || [];
         title = result.title || url;
-      } catch {
+      } catch (e) {
+        console.error('AI error:', e);
         title = url;
       }
     } else {
@@ -72,7 +73,7 @@ Respond in JSON format:
       url,
       title,
       summary,
-      nookId: nookId || 'inbox',
+      nookId: nookId || null,
       tags,
     });
 
