@@ -6,24 +6,26 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'media',
   theme: {
     extend: {
       colors: {
-        background: '#0a0a0a',
-        foreground: '#fafafa',
-        muted: '#737373',
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        muted: 'var(--foreground-muted)',
         accent: {
-          DEFAULT: '#f5a623',
-          hover: '#d4921e',
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          light: 'var(--accent-light)',
         },
         surface: {
-          DEFAULT: '#171717',
-          hover: '#262626',
+          DEFAULT: 'var(--surface)',
+          elevated: 'var(--surface-elevated)',
         },
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)'],
-        mono: ['var(--font-geist-mono)'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'sans-serif'],
+        mono: ['SF Mono', 'Fira Code', 'monospace'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
