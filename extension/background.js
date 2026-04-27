@@ -4,7 +4,7 @@ chrome.runtime.onCommand.addListener((command) => {
       if (tabs[0]) {
         const url = tabs[0].url;
         if (url && !url.startsWith('chrome://') && !url.startsWith('chrome-extension://')) {
-          const saveUrl = `https://nooks.vercel.app/save?url=${encodeURIComponent(url)}`;
+          const saveUrl = `${localUrl}/save?url=${encodeURIComponent(url)}`;
           chrome.tabs.create({ url: saveUrl });
         }
       }
@@ -14,7 +14,11 @@ chrome.runtime.onCommand.addListener((command) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'openSavePage' && request.url) {
-    const saveUrl = `https://nooks.vercel.app/save?url=${encodeURIComponent(request.url)}`;
+    const saveUrl = `${localUrl}/save?url=${encodeURIComponent(request.url)}`;
     chrome.tabs.create({ url: saveUrl });
   }
 });
+
+
+
+const localUrl = "http://localhost:3000"
