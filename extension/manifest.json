@@ -19,8 +19,8 @@
   "commands": {
     "save-link": {
       "suggested_key": {
-        "default": "Ctrl+Shift+S",
-        "mac": "Command+Shift+S"
+        "default": "Ctrl+Shift+Z",
+        "mac": "Command+Shift+Z"
       },
       "description": "Save current page to Nooks"
     }
