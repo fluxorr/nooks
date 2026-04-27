@@ -50,7 +50,7 @@ Respond in JSON format:
 {"summary": "...", "tags": ["...", "..."], "title": "..."}`;
 
         const completion = await getOpenAI().chat.completions.create({
-          model: 'openrouter/free',
+          model: 'google/gemma-2-9b-it:free',
           messages: [{ role: 'user', content: prompt }],
         });
 
