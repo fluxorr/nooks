@@ -1,6 +1,7 @@
 (function() {
   let hoverTimeout = null;
   let currentTooltip = null;
+  const NOOKS_URL = 'https://nooks.vercel.app';
 
   function createTooltip(link) {
     const tooltip = document.createElement('div');
@@ -25,14 +26,17 @@
   }
 
   function saveLink(url) {
-    window.open(`/save?url=${encodeURIComponent(url)}`, '_blank');
+    const saveUrl = `${NOOKS_URL}/save?url=${encodeURIComponent(url)}`;
+    window.open(saveUrl, '_blank');
   }
 
   function showTooltip(e, link) {
-    if (!link.href || link.href.startsWith('#') || link.href.startsWith('javascript:')) {
+    if (!link.href || link.href.startsWith('#') || link.href.startsWith('javascript:') || link.href.startsWith('chrome')) {
       return;
     }
 
+    hideTooltip();
+    
     const rect = link.getBoundingClientRect();
     const tooltip = createTooltip(link);
 
@@ -56,7 +60,7 @@
   }
 
   document.addEventListener('mouseover', (e) => {
-    if (e.target.tagName === 'A') {
+    if (e.target && e.target.tagName === 'A') {
       hoverTimeout = setTimeout(() => {
         showTooltip(e, e.target);
       }, 500);
@@ -64,7 +68,7 @@
   });
 
   document.addEventListener('mouseout', (e) => {
-    if (e.target.tagName === 'A') {
+    if (e.target && e.target.tagName === 'A') {
       clearTimeout(hoverTimeout);
       setTimeout(hideTooltip, 100);
     }
@@ -73,12 +77,6 @@
   document.addEventListener('click', (e) => {
     if (currentTooltip && !e.target.closest('.nooks-tooltip')) {
       hideTooltip();
-    }
-  });
-
-  window.addEventListener('message', (e) => {
-    if (e.data.action === 'savePage') {
-      saveLink(window.location.href);
     }
   });
 })();
