@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, FolderOpen, Plus, ExternalLink, Trash2, 
+import {
+  Search, FolderOpen, Plus, ExternalLink, Trash2,
   ArrowRight, Command, X, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,11 +40,19 @@ export function CommandPalette({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  };
+
   const items: CommandItem[] = [
     ...links.map(link => ({
       id: link.id,
       title: link.title || link.url,
-      subtitle: new URL(link.url).hostname,
+      subtitle: getDomain(link.url),
       icon: <ExternalLink className="w-4 h-4" />,
       action: () => window.open(link.url, '_blank'),
       category: 'links' as const,
@@ -68,10 +76,10 @@ export function CommandPalette({
   ];
 
   const filteredItems = query
-    ? items.filter(item => 
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.subtitle?.toLowerCase().includes(query.toLowerCase())
-      )
+    ? items.filter(item =>
+      item.title.toLowerCase().includes(query.toLowerCase()) ||
+      item.subtitle?.toLowerCase().includes(query.toLowerCase())
+    )
     : items;
 
   const groupedItems = {
@@ -250,8 +258,8 @@ function CommandItemRow({
       onClick={onSelect}
       className={cn(
         'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors',
-        isSelected 
-          ? 'bg-amber-500/10 text-foreground' 
+        isSelected
+          ? 'bg-amber-500/10 text-foreground'
           : 'hover:bg-[#f5f2eb] dark:hover:bg-[#2d2926] text-[#6b685e]'
       )}
     >
