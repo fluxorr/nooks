@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { 
   Sparkles, Plus, Search, Link2, Trash2, Folder, 
-  ExternalLink, Globe, Clock, Home
+  ExternalLink, Globe, Clock, Home, Command, Keyboard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CommandPalette, useCommandPalette } from '@/components/CommandPalette';
+import { staggerContainer, staggerItem } from '@/components/ViewTransitions';
 
 type Nook = {
   id: string;
@@ -31,6 +34,9 @@ const NOOK_COLORS = [
 ];
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { isOpen: isCommandOpen, setIsOpen: setCommandOpen } = useCommandPalette();
+  
   const [nooks, setNooks] = useState<Nook[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const [selectedNook, setSelectedNook] = useState<string | null>(null);
@@ -42,10 +48,19 @@ export default function Dashboard() {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // Stagger animation state
+  const [showLinks, setShowLinks] = useState(false);
+
   useEffect(() => {
     setMounted(true);
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => setShowLinks(true), 100);
+    }
+  }, [loading]);
 
   const fetchData = async () => {
     try {
@@ -78,28 +93,36 @@ export default function Dashboard() {
   };
 
   const moveLink = async (linkId: string, nookId: string | null) => {
+    // Optimistic update
+    const previousLinks = [...links];
+    setLinks(links.map(l => l.id === linkId ? { ...l, nookId } : l));
+
     try {
       await fetch('/api/links', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ linkId, nookId }),
       });
-      setLinks(links.map(l => l.id === linkId ? { ...l, nookId } : l));
     } catch (e) {
       console.error(e);
+      setLinks(previousLinks);
     }
   };
 
   const deleteLink = async (linkId: string) => {
+    // Optimistic update
+    const previousLinks = [...links];
+    setLinks(links.filter(l => l.id !== linkId));
+
     try {
       await fetch('/api/links', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ linkId }),
       });
-      setLinks(links.filter(l => l.id !== linkId));
     } catch (e) {
       console.error(e);
+      setLinks(previousLinks);
     }
   };
 
@@ -156,16 +179,40 @@ export default function Dashboard() {
       {/* Grain texture */}
       <div className="grain" />
 
+      {/* Command Palette */}
+      <CommandPalette
+        isOpen={isCommandOpen}
+        onClose={() => setCommandOpen(false)}
+        links={links.map(l => ({ id: l.id, url: l.url, title: l.title || l.url }))}
+        nooks={nooks}
+        onNavigateToNook={(nookId) => setSelectedNook(nookId)}
+        onCreateNook={() => setShowNewNook(true)}
+        onDeleteLink={deleteLink}
+      />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-[#e8e4dc] dark:border-[#3d3835]">
+      <header className="sticky top-0 z-40 glass border-b border-[#e8e4dc] dark:border-[#3d3835]">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20"
+            >
               <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            </motion.div>
             <span className="font-bold text-lg tracking-tight text-foreground">nooks</span>
           </a>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setCommandOpen(true)}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#f5f2eb] dark:bg-[#252220] rounded-lg border border-[#e8e4dc] dark:border-[#3d3835] text-sm text-[#6b685e] hover:text-foreground transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              <span className="text-xs">Search...</span>
+              <kbd className="ml-2 px-1.5 py-0.5 bg-white dark:bg-[#1a1915] rounded text-xs">
+                <Command className="w-3 h-3 inline" />K
+              </kbd>
+            </button>
             <a href="/" className="flex items-center gap-2 text-sm text-[#6b685e] hover:text-foreground transition-colors">
               <Home className="w-4 h-4" />
               <span>Home</span>
@@ -189,7 +236,7 @@ export default function Dashboard() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#a09a90]" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Filter..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#252220] border border-[#e8e4dc] dark:border-[#3d3835] rounded-xl text-sm text-foreground placeholder:text-[#a09a90] outline-none focus:border-amber-500/30 focus:ring-1 focus:ring-amber-500/20 transition-all"
@@ -200,16 +247,24 @@ export default function Dashboard() {
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xs font-medium text-[#a09a90] uppercase tracking-widest">Collections</h3>
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => setShowNewNook(true)}
                     className="p-1.5 rounded-lg hover:bg-[#f5f2eb] dark:hover:bg-[#252220] transition-colors text-[#6b685e] hover:text-amber-600"
                   >
                     <Plus className="w-4 h-4" />
-                  </button>
+                  </motion.button>
                 </div>
 
-                <div className="space-y-1.5">
-                  <button
+                <motion.div 
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="space-y-1.5"
+                >
+                  <motion.button
+                    variants={staggerItem}
                     onClick={() => setSelectedNook('inbox')}
                     className={cn(
                       'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
@@ -225,11 +280,12 @@ export default function Dashboard() {
                     <span className="ml-auto text-xs text-[#a09a90] font-normal">
                       {links.filter(l => !l.nookId).length}
                     </span>
-                  </button>
+                  </motion.button>
 
                   {nooks.map(nook => (
-                    <button
+                    <motion.button
                       key={nook.id}
+                      variants={staggerItem}
                       onClick={() => setSelectedNook(nook.id)}
                       className={cn(
                         'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
@@ -251,9 +307,9 @@ export default function Dashboard() {
                       <span className="ml-auto text-xs text-[#a09a90] font-normal">
                         {links.filter(l => l.nookId === nook.id).length}
                       </span>
-                    </button>
+                    </motion.button>
                   ))}
-                </div>
+                </motion.div>
               </div>
 
               {/* Add Nook Form */}
@@ -307,7 +363,12 @@ export default function Dashboard() {
               </AnimatePresence>
 
               {/* Stats */}
-              <div className="mt-8 p-4 bg-gradient-to-br from-white to-[#f5f2eb] dark:from-[#252220] dark:to-[#1a1915] rounded-2xl border border-[#e8e4dc] dark:border-[#3d3835]">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-8 p-4 bg-gradient-to-br from-white to-[#f5f2eb] dark:from-[#252220] dark:to-[#1a1915] rounded-2xl border border-[#e8e4dc] dark:border-[#3d3835]"
+              >
                 <div className="flex items-center gap-2 text-xs text-[#6b685e] mb-2">
                   <Clock className="w-3 h-3" />
                   <span>This week</span>
@@ -320,17 +381,40 @@ export default function Dashboard() {
                   }).length}
                 </div>
                 <div className="text-xs text-[#6b685e]">new links saved</div>
-              </div>
+              </motion.div>
+
+              {/* Keyboard hint */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-4 p-3 bg-[#f5f2eb] dark:bg-[#252220] rounded-xl border border-[#e8e4dc] dark:border-[#3d3835]"
+              >
+                <div className="flex items-center gap-2 text-xs text-[#6b685e]">
+                  <Keyboard className="w-4 h-4" />
+                  <span>Press</span>
+                  <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#1a1915] rounded text-xs font-mono">
+                    ⌘K
+                  </kbd>
+                  <span>to search</span>
+                </div>
+              </motion.div>
             </div>
           </aside>
 
           {/* Links Grid */}
           <div className="flex-1 min-w-0">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between mb-6"
+            >
               <div className="flex items-center gap-3">
                 {selectedNookData && (
-                  <div 
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
                     className="w-3 h-3 rounded-full"
                     style={{ background: selectedNookData.color }}
                   />
@@ -344,7 +428,7 @@ export default function Dashboard() {
               <span className="text-sm text-[#6b685e]">
                 {filteredLinks.length} {filteredLinks.length === 1 ? 'link' : 'links'}
               </span>
-            </div>
+            </motion.div>
 
             {filteredLinks.length === 0 ? (
               <motion.div 
@@ -367,22 +451,28 @@ export default function Dashboard() {
                 </a>
               </motion.div>
             ) : (
-              <div className="grid gap-3">
+              <motion.div 
+                variants={staggerContainer}
+                initial="hidden"
+                animate={showLinks ? "show" : "hidden"}
+                className="grid gap-3"
+              >
                 {filteredLinks.map((link, i) => (
                   <motion.div
                     key={link.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03, duration: 0.3 }}
+                    variants={staggerItem}
                     onMouseEnter={() => setHoveredLink(link.id)}
                     onMouseLeave={() => setHoveredLink(null)}
                     className="group relative p-4 bg-white dark:bg-[#252220] rounded-2xl border border-[#e8e4dc] dark:border-[#3d3835] hover:border-amber-500/30 transition-all"
                   >
                     <div className="flex items-start gap-4">
                       {/* Favicon */}
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f5f2eb] to-[#e8e4dc] dark:from-[#2d2926] dark:to-[#252220] flex items-center justify-center shrink-0 border border-[#e8e4dc] dark:border-[#3d3835]">
+                      <motion.div 
+                        whileHover={{ scale: 1.1 }}
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f5f2eb] to-[#e8e4dc] dark:from-[#2d2926] dark:to-[#252220] flex items-center justify-center shrink-0 border border-[#e8e4dc] dark:border-[#3d3835]"
+                      >
                         <Globe className="w-5 h-5 text-[#a09a90]" />
-                      </div>
+                      </motion.div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
@@ -404,15 +494,19 @@ export default function Dashboard() {
                           </div>
 
                           {/* Actions */}
-                          <div className={cn(
-                            'flex items-center gap-1 transition-opacity',
-                            hoveredLink === link.id ? 'opacity-100' : 'opacity-0'
-                          )}>
+                          <motion.div 
+                            animate={{ opacity: hoveredLink === link.id ? 1 : 0 }}
+                            className="flex items-center gap-1"
+                          >
                             {/* Move to nook */}
                             <div className="relative">
-                              <button className="p-2 rounded-xl hover:bg-[#f5f2eb] dark:hover:bg-[#2d2926] transition-colors text-[#6b685e] hover:text-foreground">
+                              <motion.button 
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="p-2 rounded-xl hover:bg-[#f5f2eb] dark:hover:bg-[#2d2926] transition-colors text-[#6b685e] hover:text-foreground"
+                              >
                                 <Folder className="w-4 h-4" />
-                              </button>
+                              </motion.button>
                               <div className="absolute right-0 top-full mt-2 w-44 py-1.5 bg-white dark:bg-[#2d2926] border border-[#e8e4dc] dark:border-[#3d3835] rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
                                 <button
                                   onClick={() => moveLink(link.id, null)}
@@ -434,21 +528,25 @@ export default function Dashboard() {
                               </div>
                             </div>
                             
-                            <a
+                            <motion.a
                               href={link.url}
                               target="_blank"
                               rel="noopener noreferrer"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
                               className="p-2 rounded-xl hover:bg-[#f5f2eb] dark:hover:bg-[#2d2926] transition-colors text-[#6b685e] hover:text-foreground"
                             >
                               <ExternalLink className="w-4 h-4" />
-                            </a>
-                            <button
+                            </motion.a>
+                            <motion.button
                               onClick={() => deleteLink(link.id)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
                               className="p-2 rounded-xl hover:bg-[#f5f2eb] dark:hover:bg-[#2d2926] transition-colors text-[#a09a90] hover:text-red-500"
                             >
                               <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                            </motion.button>
+                          </motion.div>
                         </div>
 
                         {link.summary && (
@@ -460,12 +558,13 @@ export default function Dashboard() {
                         {link.tags && link.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-3">
                             {link.tags.slice(0, 4).map(tag => (
-                              <span
+                              <motion.span
                                 key={tag}
+                                whileHover={{ scale: 1.05 }}
                                 className="px-2 py-0.5 bg-[#f5f2eb] dark:bg-[#2d2926] text-[#6b685e] text-xs rounded-md border border-[#e8e4dc] dark:border-[#3d3835]"
                               >
                                 {tag}
-                              </span>
+                              </motion.span>
                             ))}
                           </div>
                         )}
@@ -473,7 +572,7 @@ export default function Dashboard() {
                     </div>
                   </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
           </div>
         </div>
