@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Home, Keyboard } from 'lucide-react';
+import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Home, Keyboard, Command } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CommandPalette, useCommandPalette } from '@/components/CommandPalette';
+import { CommandPalette } from '@/components/CommandPalette';
 import { staggerContainer, staggerItem } from '@/components/ViewTransitions';
 
 type Nook = { id: string; name: string; color: string; isPublic: boolean };
@@ -13,7 +13,7 @@ type Link = { id: string; url: string; title: string; summary: string; nookId: s
 const NOOK_COLORS = ['#d97706', '#dc2626', '#16a34a', '#2563eb', '#7c3aed', '#db2777', '#0d9488', '#ea580c', '#65a30d', '#0891b2'];
 
 export default function Dashboard() {
-  const { isOpen: isCommandOpen, setIsOpen: setCommandOpen } = useCommandPalette();
+  const [isCommandOpen, setCommandOpen] = useState(false);
   const [nooks, setNooks] = useState<Nook[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const [selectedNook, setSelectedNook] = useState<string | null>(null);
@@ -24,6 +24,17 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [showLinks, setShowLinks] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => { fetchData(); }, []);
   useEffect(() => { if (!loading) setTimeout(() => setShowLinks(true), 100); }, [loading]);
