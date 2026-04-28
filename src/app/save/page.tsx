@@ -2,8 +2,9 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Sparkles, Check, Loader2, Tag, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Check, Loader2, Tag, ArrowRight, Moon, Sun } from 'lucide-react';
+import Link from 'next/link';
 
 function SaveContent() {
   const searchParams = useSearchParams();
@@ -11,6 +12,17 @@ function SaveContent() {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [darkMode, setDarkMode] = useState(true);
+
+  const borderColor = '#333333';
+  const bgColor = '#1c1c1c';
+  const textColor = '#ebebeb';
+  const mutedColor = '#6b6b6b';
+
+  useEffect(() => {
+    setDarkMode(true);
+    document.documentElement.classList.add('dark');
+  }, []);
 
   useEffect(() => {
     if (url) {
@@ -21,44 +33,119 @@ function SaveContent() {
     }
   }, [url]);
 
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle('dark');
+  };
+
   return (
-    <main className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full">
-        <div className="glass rounded-3xl border border-[var(--border)] p-8 text-center">
-          {loading ? (
-            <>
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-12 h-12 mx-auto mb-6">
-                <Loader2 className="w-12 h-12 text-amber-600" />
+    <main className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-[#1c1c1c] text-[#ebebeb]' : 'bg-white text-[#37352f]'}`}>
+      <div className="fixed inset-y-0 left-0 right-0 pointer-events-none mx-auto max-w-md" style={{ borderLeft: `1px dashed ${darkMode ? '#333' : '#e5e5e5'}`, borderRight: `1px dashed ${darkMode ? '#333' : '#e5e5e5'}` }} />
+
+      <div className="max-w-md mx-auto relative min-h-screen" style={{ borderLeft: `1px solid ${borderColor}`, borderRight: `1px solid ${borderColor}` }}>
+        {/* Nav */}
+        <nav className={`relative z-50 transition-all duration-300 ${darkMode ? 'bg-[#1c1c1c]/90' : 'bg-white/90'} backdrop-blur-md`} style={{ borderBottom: `1px solid ${borderColor}` }}>
+          <div className="px-6 py-3 flex items-center justify-between">
+            <Link href="/" className="font-medium cursor-pointer hover:opacity-80 transition-opacity">nooks</Link>
+            <div className="flex items-center gap-2">
+              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={toggleTheme} className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-[#2f2f2f] text-[#6b6b6b]' : 'hover:bg-gray-100 text-[#9b9b9b]'}`}>
+                <motion.div animate={{ rotate: darkMode ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                  {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </motion.div>
+              </motion.button>
+            </div>
+          </div>
+        </nav>
+
+        <div className="p-6">
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="text-center pt-8"
+              >
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-10 h-10 mx-auto mb-5">
+                  <Loader2 className="w-10 h-10 text-[#6b6b6b]" />
+                </motion.div>
+                <h2 className="text-[18px] font-medium mb-2" style={{ color: textColor }}>Saving your link...</h2>
+                <p className="text-[13px]" style={{ color: mutedColor }}>Fetching content and generating summary</p>
+                <p className="text-xs mt-4 truncate" style={{ color: mutedColor, opacity: 0.6 }}>{url}</p>
               </motion.div>
-              <h2 className="text-xl font-semibold text-[var(--foreground)] mb-2">Saving your link...</h2>
-              <p className="text-[var(--foreground-muted)] text-sm">Fetching content and generating summary</p>
-            </>
-          ) : saved ? (
-            <>
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-amber-500/10 flex items-center justify-center">
-                <Check className="w-8 h-8 text-amber-600" />
-              </div>
-              <h2 className="text-xl font-semibold text-[var(--foreground)] mb-2">Saved!</h2>
-              <p className="text-[var(--foreground-muted)] text-sm mb-4 truncate">{url}</p>
-              {result?.title && <div className="text-left p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] mb-4"><p className="font-medium text-[var(--foreground)] mb-2">{result.title}</p>{result?.summary && <p className="text-sm text-[var(--foreground-muted)]">{result.summary}</p>}</div>}
-              {result?.tags?.length > 0 && <div className="flex flex-wrap gap-2 justify-center mb-6">{result.tags.map((tag: string) => <span key={tag} className="px-3 py-1 bg-[var(--surface)] rounded-full text-xs text-[var(--foreground-muted)] flex items-center gap-1"><Tag className="w-3 h-3" />{tag}</span>)}</div>}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a href="/dashboard" className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl transition-colors">Dashboard <ArrowRight className="w-4 h-4" /></a>
-                <a href="/" className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--surface)] text-[var(--foreground)] font-medium rounded-xl hover:bg-[var(--background-alt)] transition-colors">Save Another</a>
-              </div>
-            </>
-          ) : (
-            <>
-              <h2 className="text-xl font-semibold text-[var(--foreground)] mb-2">Failed to save</h2>
-              <p className="text-[var(--foreground-muted)] text-sm">Please try again</p>
-            </>
-          )}
+            ) : saved ? (
+              <motion.div
+                key="saved"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="text-center pt-4"
+              >
+                <div className="w-14 h-14 mx-auto mb-5 rounded-2xl flex items-center justify-center" style={{ background: '#252525' }}>
+                  <Check className="w-7 h-7 text-[#ebebeb]" />
+                </div>
+                <h2 className="text-[18px] font-medium mb-1" style={{ color: textColor }}>Saved!</h2>
+                <p className="text-xs mb-6 truncate" style={{ color: mutedColor }}>{url}</p>
+                
+                {result?.title && (
+                  <div className="text-left p-4 rounded-xl border mb-5" style={{ background: '#252525', borderColor: borderColor }}>
+                    <p className="text-[14px] font-medium mb-1.5" style={{ color: textColor }}>{result.title}</p>
+                    {result?.summary && <p className="text-[13px]" style={{ color: mutedColor }}>{result.summary}</p>}
+                  </div>
+                )}
+                
+                {result?.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-2 justify-center mb-6">
+                    {result.tags.map((tag: string) => (
+                      <span key={tag} className="px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5" style={{ background: '#252525', color: mutedColor, border: `1px solid ${borderColor}` }}>
+                        <Tag className="w-3 h-3" />{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex flex-col gap-2">
+                  <Link href="/dashboard" className="flex items-center justify-center gap-2 px-4 py-2.5 text-white text-[14px] font-medium rounded-xl transition-colors" style={{ background: '#37352f' }}>
+                    Dashboard <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link href="/" className="flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-medium rounded-xl transition-colors" style={{ background: '#252525', border: `1px solid ${borderColor}`, color: textColor }}>
+                    Save Another
+                  </Link>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="text-center pt-8"
+              >
+                <h2 className="text-[18px] font-medium mb-2" style={{ color: textColor }}>Failed to save</h2>
+                <p className="text-[13px] mb-4" style={{ color: mutedColor }}>Please try again</p>
+                <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 text-[14px] font-medium rounded-xl transition-colors" style={{ background: '#252525', border: `1px solid ${borderColor}`, color: textColor }}>
+                  Try Again
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </motion.div>
+      </div>
     </main>
   );
 }
 
 export default function SavePage() {
-  return <Suspense fallback={<div className="min-h-screen bg-[var(--background)]" />}><SaveContent /></Suspense>;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#1c1c1c] flex items-center justify-center">
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+          <Sparkles className="w-8 h-8 text-[#6b6b6b]" />
+        </motion.div>
+      </div>
+    }>
+      <SaveContent />
+    </Suspense>
+  );
 }

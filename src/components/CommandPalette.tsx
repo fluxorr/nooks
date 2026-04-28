@@ -27,6 +27,12 @@ type CommandPaletteProps = {
   onDeleteLink: (linkId: string) => void;
 };
 
+const borderColor = '#333333';
+const bgColor = '#1c1c1c';
+const textColor = '#ebebeb';
+const mutedColor = '#6b6b6b';
+const subtleColor = '#555555';
+
 export function CommandPalette({
   isOpen,
   onClose,
@@ -128,27 +134,25 @@ export function CommandPalette({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
+            className="fixed inset-0 z-50"
+            style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
           />
 
-          {/* Palette */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            initial={{ opacity: 0, scale: 0.96, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-[20%] left-1/2 -translate-x-1/2 w-full max-w-xl z-50"
+            exit={{ opacity: 0, scale: 0.96, y: -20 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 350, mass: 0.8 }}
+            className="fixed top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl z-50"
           >
-            <div className="bg-white dark:bg-[#252220] rounded-2xl border border-[#e8e4dc] dark:border-[#3d3835] shadow-2xl overflow-hidden">
-              {/* Search Input */}
-              <div className="flex items-center gap-3 px-4 py-4 border-b border-[#e8e4dc] dark:border-[#3d3835]">
-                <Search className="w-5 h-5 text-[#a09a90]" />
+            <div className="rounded-2xl overflow-hidden" style={{ background: bgColor, border: `1px solid ${borderColor}` }}>
+              <div className="flex items-center gap-3 px-4 py-4" style={{ borderBottom: `1px solid ${borderColor}` }}>
+                <Search className="w-5 h-5" style={{ color: mutedColor }} />
                 <input
                   ref={inputRef}
                   type="text"
@@ -156,26 +160,26 @@ export function CommandPalette({
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search links, collections..."
-                  className="flex-1 bg-transparent outline-none text-foreground placeholder:text-[#a09a90]"
+                  className="flex-1 bg-transparent outline-none focus:outline-none text-[15px]"
+                  style={{ color: textColor }}
                 />
-                <kbd className="hidden sm:flex items-center gap-1 px-2 py-1 bg-[#f5f2eb] dark:bg-[#1a1915] rounded text-xs text-[#6b685e]">
+                <div className="flex items-center gap-1 px-2 py-1 rounded text-xs" style={{ background: '#252525', color: mutedColor }}>
                   <Command className="w-3 h-3" />K
-                </kbd>
+                </div>
               </div>
 
-              {/* Results */}
               <div className="max-h-[400px] overflow-y-auto p-2">
                 {filteredItems.length === 0 ? (
-                  <div className="py-12 text-center text-[#6b685e]">
+                  <div className="py-12 text-center" style={{ color: mutedColor }}>
                     <Sparkles className="w-8 h-8 mx-auto mb-3 opacity-50" />
-                    <p>No results found</p>
+                    <p className="text-[15px]">No results found</p>
                   </div>
                 ) : (
                   <div className="space-y-1">
                     {groupedItems.actions.length > 0 && (
                       <div className="px-2 py-1">
-                        <p className="text-xs font-medium text-[#a09a90] uppercase tracking-wide mb-1">Actions</p>
-                        {groupedItems.actions.map((item, idx) => (
+                        <p className="text-xs font-medium mb-2" style={{ color: mutedColor, letterSpacing: '0.05em' }}>ACTIONS</p>
+                        {groupedItems.actions.map((item) => (
                           <CommandItemRow
                             key={item.id}
                             item={item}
@@ -188,7 +192,7 @@ export function CommandPalette({
 
                     {groupedItems.nooks.length > 0 && (
                       <div className="px-2 py-1">
-                        <p className="text-xs font-medium text-[#a09a90] uppercase tracking-wide mb-1">Collections</p>
+                        <p className="text-xs font-medium mb-2" style={{ color: mutedColor, letterSpacing: '0.05em' }}>COLLECTIONS</p>
                         {groupedItems.nooks.map((item) => (
                           <CommandItemRow
                             key={item.id}
@@ -202,7 +206,7 @@ export function CommandPalette({
 
                     {groupedItems.links.length > 0 && (
                       <div className="px-2 py-1">
-                        <p className="text-xs font-medium text-[#a09a90] uppercase tracking-wide mb-1">Links</p>
+                        <p className="text-xs font-medium mb-2" style={{ color: mutedColor, letterSpacing: '0.05em' }}>LINKS</p>
                         {groupedItems.links.slice(0, 10).map((item) => (
                           <CommandItemRow
                             key={item.id}
@@ -212,7 +216,7 @@ export function CommandPalette({
                           />
                         ))}
                         {groupedItems.links.length > 10 && (
-                          <p className="px-3 py-2 text-xs text-[#a09a90]">
+                          <p className="px-3 py-2 text-xs" style={{ color: mutedColor }}>
                             +{groupedItems.links.length - 10} more links
                           </p>
                         )}
@@ -222,19 +226,18 @@ export function CommandPalette({
                 )}
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between px-4 py-3 border-t border-[#e8e4dc] dark:border-[#3d3835] bg-[#faf8f5] dark:bg-[#1a1915]">
-                <div className="flex items-center gap-4 text-xs text-[#6b685e]">
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: `1px solid ${borderColor}`, background: '#252525' }}>
+                <div className="flex items-center gap-4 text-xs" style={{ color: mutedColor }}>
                   <span className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#252220] rounded">↑↓</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded" style={{ background: bgColor }}>↑↓</kbd>
                     Navigate
                   </span>
                   <span className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#252220] rounded">↵</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded" style={{ background: bgColor }}>↵</kbd>
                     Select
                   </span>
                 </div>
-                <span className="text-xs text-[#a09a90]">Press esc to close</span>
+                <span className="text-xs" style={{ color: mutedColor }}>esc to close</span>
               </div>
             </div>
           </motion.div>
@@ -257,32 +260,30 @@ function CommandItemRow({
     <button
       onClick={onSelect}
       className={cn(
-        'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-colors',
-        isSelected
-          ? 'bg-amber-500/10 text-foreground'
-          : 'hover:bg-[#f5f2eb] dark:hover:bg-[#2d2926] text-[#6b685e]'
+        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all',
+        isSelected ? 'bg-[#2a2a2a]' : 'hover:bg-[#252525]'
       )}
+      style={{ color: isSelected ? textColor : mutedColor }}
     >
       <div className={cn(
-        'w-8 h-8 rounded-lg flex items-center justify-center',
-        isSelected ? 'bg-amber-500/20' : 'bg-[#f5f2eb] dark:bg-[#2d2926]'
+        'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+        isSelected ? 'bg-[#333]' : 'bg-[#252525]'
       )}>
-        <span className={isSelected ? 'text-amber-600' : 'text-[#6b685e]'}>
+        <span style={{ color: isSelected ? textColor : mutedColor }}>
           {item.icon}
         </span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{item.title}</p>
+        <p className="text-[14px] font-medium truncate">{item.title}</p>
         {item.subtitle && (
-          <p className="text-xs text-[#a09a90] truncate">{item.subtitle}</p>
+          <p className="text-xs truncate" style={{ color: mutedColor }}>{item.subtitle}</p>
         )}
       </div>
-      {isSelected && <ArrowRight className="w-4 h-4 text-amber-600" />}
+      {isSelected && <ArrowRight className="w-4 h-4" style={{ color: textColor }} />}
     </button>
   );
 }
 
-// Hook for keyboard shortcut
 export function useCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
 
