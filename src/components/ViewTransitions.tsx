@@ -1,7 +1,40 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, Children, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+
+interface ViewTransitionsProps {
+  children: ReactNode;
+}
+
+export function ViewTransitions({ children }: ViewTransitionsProps) {
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!document.startViewTransition) return;
+
+    const interceptor = (e: MouseEvent) => {
+      const target = e.target as HTMLAnchorElement;
+      if (
+        target.matches('a') &&
+        target.href &&
+        target.target !== '_blank' &&
+        target.href.startsWith(window.location.origin)
+      ) {
+        e.preventDefault();
+        const href = target.href;
+        document.startViewTransition(() => {
+          router.push(href);
+        });
+      }
+    };
+
+    document.addEventListener('click', interceptor);
+    return () => document.removeEventListener('click', interceptor);
+  }, []);
+
+  return <>{children}</>;
+}
 
 interface ViewTransitionLinkProps {
   href: string;
