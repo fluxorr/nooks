@@ -42,7 +42,7 @@ function SaveContent() {
   }, [url]);
 
   const toggleTheme = () => {
-    setDarkMode(!darkMode);
+    setDarkMode(prev => !prev);
     document.documentElement.classList.toggle('dark');
   };
 
