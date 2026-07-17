@@ -17,12 +17,30 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Nooks — Curate your web',
+  title: {
+    default: 'Nooks — Curate your web',
+    template: '%s — Nooks',
+  },
   description: 'Save, organize, and search across the web content you care about.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
+  openGraph: {
+    title: 'Nooks — Curate your web',
+    description: 'Save, organize, and search across the web content you care about.',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nooks — Curate your web',
+    description: 'Save, organize, and search across the web content you care about.',
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
