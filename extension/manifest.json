@@ -1,19 +1,25 @@
 {
   "manifest_version": 3,
   "name": "Nooks - Save Links",
-  "version": "1.0.0",
-  "description": "Save links to your Nooks with one click or keyboard shortcut",
+  "version": "1.1.0",
+  "description": "Save links to your Nooks with one click, right-click menu, or keyboard shortcut",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "notifications",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://*/*"
   ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
       "48": "icons/icon48.png",
-      "128": "icons/icon128.png",
-      "32": "icons/icon32.png"
+      "128": "icons/icon128.png"
     }
   },
   "commands": {
@@ -30,15 +36,15 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "css": [
-        "content.css"
-      ]
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"]
     }
-  ]
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

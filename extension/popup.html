@@ -38,10 +38,7 @@
       margin-bottom: 12px;
     }
     .shortcut-label { font-size: 12px; color: #737373; }
-    .shortcut-key {
-      display: flex;
-      gap: 4px;
-    }
+    .shortcut-key { display: flex; gap: 4px; }
     .key {
       padding: 4px 8px;
       background: #262626;
@@ -59,14 +56,22 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, opacity 0.15s;
     }
     .btn:hover { background: #d4921e; }
+    .btn:disabled { opacity: 0.6; cursor: default; }
     .hint {
       text-align: center;
       font-size: 11px;
       color: #525252;
       margin-top: 12px;
+    }
+    .server-hint {
+      text-align: center;
+      font-size: 10px;
+      color: #404040;
+      margin-top: 8px;
+      font-family: monospace;
     }
   </style>
 </head>
@@ -89,7 +94,8 @@
       </div>
     </div>
     <button class="btn" id="saveBtn">Save Current Page</button>
-    <p class="hint">Or hover over any link for 500ms</p>
+    <p class="hint">Or right-click any link → Save to Nooks</p>
+    <p class="server-hint">loading...</p>
   </div>
   <script src="popup.js"></script>
 </body>
