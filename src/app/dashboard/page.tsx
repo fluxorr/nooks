@@ -411,7 +411,7 @@ export default function Dashboard() {
                     />
                     <div className="flex gap-1.5 mb-4">
                       {NOOK_COLORS.map(c => (
-                        <button key={c} onClick={() => setNewNookColor(c)} className={cn('w-6 h-6 rounded-full transition-all', newNookColor === c && 'scale-110 ring-2 ring-white/20')} style={{ background: c }} aria-label={`Color ${c}`} />
+                        <button key={c} onClick={() => setNewNookColor(c)} className={cn('w-6 h-6 rounded-full transition-transform', newNookColor === c && 'scale-110 ring-2 ring-white/20')} style={{ background: c }} aria-label={`Color ${c}`} />
                       ))}
                     </div>
                     <div className="flex gap-2">
@@ -583,7 +583,7 @@ export default function Dashboard() {
                               >
                                 <Folder className="w-4 h-4" />
                               </button>
-                              <div className="absolute right-0 top-full mt-2 w-44 py-1.5 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 bg-surface border border-border">
+                              <div className="absolute right-0 top-full mt-2 w-44 py-1.5 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-20 bg-surface border border-border">
                                 <button onClick={() => moveLink(link.id, null)} className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-surface text-muted"><Globe className="w-3.5 h-3.5" />Inbox</button>
                                 {nooks.map(n => <button key={n.id} onClick={() => moveLink(link.id, n.id)} className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-surface text-muted"><div className="w-3.5 h-3.5 rounded-full" style={{ background: n.color }} />{n.name}</button>)}
                               </div>
