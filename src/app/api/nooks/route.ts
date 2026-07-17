@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { nooks, links } from '@/db/schema';
 import { generateId } from '@/lib/utils';
+import { createNookSchema } from '@/lib/validation';
 
 export async function GET() {
   try {
@@ -20,12 +21,17 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, color } = await req.json();
+    const body = await req.json();
+    const parsed = createNookSchema.safeParse(body);
 
-    if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
 
+    const { name, color } = parsed.data;
     const db = getDb();
     const id = generateId();
 
@@ -35,7 +41,7 @@ export async function POST(req: NextRequest) {
       color: color || '#f5a623',
     });
 
-    return NextResponse.json({ id, name, color });
+    return NextResponse.json({ id, name, color: color || '#f5a623' });
   } catch (error) {
     console.error('Create nook error:', error);
     return NextResponse.json({ error: 'Failed to create nook' }, { status: 500 });

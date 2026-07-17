@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
 import { generateId } from '@/lib/utils';
+import { saveLinkSchema } from '@/lib/validation';
 
 function getOpenAI() {
   return new OpenAI({
@@ -12,33 +13,27 @@ function getOpenAI() {
 }
 
 async function fetchUrlContent(url: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
   try {
-    const response = await fetch(`https://r.jina.ai/${url}`);
+    const response = await fetch(`https://r.jina.ai/${url}`, { signal: controller.signal });
     if (!response.ok) throw new Error('Failed to fetch');
     const text = await response.text();
     return text.slice(0, 5000);
   } catch {
     return null;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
-export async function POST(req: NextRequest) {
+async function generateSummary(content: string, url: string): Promise<{ summary: string; tags: string[]; title: string }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
+
   try {
-    const { url, nookId } = await req.json();
-
-    if (!url) {
-      return NextResponse.json({ error: 'URL is required' }, { status: 400 });
-    }
-
-    const content = await fetchUrlContent(url);
-
-    let summary = '';
-    let tags: string[] = [];
-    let title = '';
-
-    if (content) {
-      try {
-        const prompt = `Extract the following from this web content:
+    const prompt = `Extract the following from this web content:
 1. A 2-3 sentence summary
 2. 3-5 relevant tags (single words, lowercase)
 3. The title (if not clear, create a short descriptive one)
@@ -49,19 +44,50 @@ ${content.slice(0, 3000)}
 Respond in JSON format:
 {"summary": "...", "tags": ["...", "..."], "title": "..."}`;
 
-        const completion = await getOpenAI().chat.completions.create({
-          model: 'google/gemma-2-9b-it:free',
-          messages: [{ role: 'user', content: prompt }],
-        });
+    const completion = await getOpenAI().chat.completions.create({
+      model: 'google/gemma-2-9b-it:free',
+      messages: [{ role: 'user', content: prompt }],
+    }, { signal: controller.signal });
 
-        const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
-        summary = result.summary || '';
-        tags = result.tags || [];
-        title = result.title || url;
-      } catch (e) {
-        console.error('AI error:', e);
-        title = url;
-      }
+    const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    return {
+      summary: result.summary || '',
+      tags: Array.isArray(result.tags) ? result.tags.slice(0, 10).map(String) : [],
+      title: result.title || url,
+    };
+  } catch (e) {
+    console.error('AI error:', e);
+    return { summary: '', tags: [], title: url };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const parsed = saveLinkSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { url, nookId } = parsed.data;
+
+    const content = await fetchUrlContent(url);
+
+    let summary = '';
+    let tags: string[] = [];
+    let title = '';
+
+    if (content) {
+      const result = await generateSummary(content, url);
+      summary = result.summary;
+      tags = result.tags;
+      title = result.title;
     } else {
       title = url;
     }
