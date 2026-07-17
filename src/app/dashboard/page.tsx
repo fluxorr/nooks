@@ -181,7 +181,7 @@ export default function Dashboard() {
       if (shiftKey && lastSelectedIndex !== null) {
         const start = Math.min(lastSelectedIndex, index);
         const end = Math.max(lastSelectedIndex, index);
-        sortedLinks.slice(start, end + 1).forEach(l => next.add(l.id));
+        filteredLinks.slice(start, end + 1).forEach(l => next.add(l.id));
       } else if (next.has(id)) {
         next.delete(id);
       } else {
