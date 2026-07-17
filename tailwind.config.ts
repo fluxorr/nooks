@@ -6,13 +6,20 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'media',
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
-        muted: 'var(--foreground-muted)',
+        background: {
+          DEFAULT: 'var(--background)',
+          alt: 'var(--background-alt)',
+        },
+        foreground: {
+          DEFAULT: 'var(--foreground)',
+          muted: 'var(--foreground-muted)',
+          subtle: 'var(--foreground-subtle)',
+          tertiary: 'var(--foreground-tertiary)',
+        },
         accent: {
           DEFAULT: 'var(--accent)',
           hover: 'var(--accent-hover)',
@@ -21,6 +28,11 @@ const config: Config = {
         surface: {
           DEFAULT: 'var(--surface)',
           elevated: 'var(--surface-elevated)',
+          alt: 'var(--surface-alt)',
+        },
+        border: {
+          DEFAULT: 'var(--border)',
+          subtle: 'var(--border-subtle)',
         },
       },
       fontFamily: {
