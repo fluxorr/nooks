@@ -25,12 +25,20 @@ function SaveContent() {
   }, []);
 
   useEffect(() => {
-    if (url) {
-      fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
-        .then(res => res.json())
-        .then(data => { setResult(data); setSaved(true); })
-        .finally(() => setLoading(false));
+    if (!url) {
+      setLoading(false);
+      return;
     }
+    let cancelled = false;
+    fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => { if (!cancelled) { setResult(data); setSaved(true); } })
+      .catch(err => { if (!cancelled) { console.error(err); setResult(null); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [url]);
 
   const toggleTheme = () => {
@@ -123,10 +131,19 @@ function SaveContent() {
                 className="text-center pt-8"
               >
                 <h2 className="text-[18px] font-medium mb-2" style={{ color: textColor }}>Failed to save</h2>
-                <p className="text-[13px] mb-4" style={{ color: mutedColor }}>Please try again</p>
-                <Link href="/" className="inline-flex items-center gap-2 px-4 py-2.5 text-[14px] font-medium rounded-xl transition-colors" style={{ background: '#252525', border: `1px solid ${borderColor}`, color: textColor }}>
-                  Try Again
-                </Link>
+                <p className="text-[13px] mb-6" style={{ color: mutedColor }}>
+                  {url ? 'Could not fetch or save this link. It may be invalid or unreachable.' : 'No URL provided.'}
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Link href="/" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[14px] font-medium rounded-xl transition-colors" style={{ background: '#252525', border: `1px solid ${borderColor}`, color: textColor }}>
+                    Try Again
+                  </Link>
+                  {url && (
+                    <button onClick={() => window.location.reload()} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] font-medium rounded-xl transition-colors" style={{ color: mutedColor }}>
+                      Retry
+                    </button>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
