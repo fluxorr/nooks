@@ -2,18 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { moveLinkSchema, deleteLinkSchema } from '@/lib/validation';
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { linkId, nookId } = await req.json();
+    const body = await req.json();
+    const parsed = moveLinkSchema.safeParse(body);
 
-    if (!linkId) {
-      return NextResponse.json({ error: 'Link ID is required' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
 
+    const { linkId, nookId } = parsed.data;
     const db = getDb();
-
-    await db.update(links).set({ nookId: nookId || null }).where(eq(links.id, linkId));
+    await db.update(links).set({ nookId }).where(eq(links.id, linkId));
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -24,12 +29,17 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { linkId } = await req.json();
+    const body = await req.json();
+    const parsed = deleteLinkSchema.safeParse(body);
 
-    if (!linkId) {
-      return NextResponse.json({ error: 'Link ID is required' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
 
+    const { linkId } = parsed.data;
     const db = getDb();
     await db.delete(links).where(eq(links.id, linkId));
 
