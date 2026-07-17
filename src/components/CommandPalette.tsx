@@ -27,12 +27,6 @@ type CommandPaletteProps = {
   onDeleteLink: (linkId: string) => void;
 };
 
-const borderColor = '#333333';
-const bgColor = '#1c1c1c';
-const textColor = '#ebebeb';
-const mutedColor = '#6b6b6b';
-const subtleColor = '#555555';
-
 export function CommandPalette({
   isOpen,
   onClose,
@@ -139,8 +133,7 @@ export function CommandPalette({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50"
-            style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
 
           <motion.div
@@ -148,11 +141,11 @@ export function CommandPalette({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -20 }}
             transition={{ type: 'spring', damping: 30, stiffness: 350, mass: 0.8 }}
-            className="fixed top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl z-50"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl z-50"
           >
-            <div className="rounded-2xl overflow-hidden" style={{ background: bgColor, border: `1px solid ${borderColor}` }}>
-              <div className="flex items-center gap-3 px-4 py-4" style={{ borderBottom: `1px solid ${borderColor}` }}>
-                <Search className="w-5 h-5" style={{ color: mutedColor }} />
+            <div className="rounded-2xl overflow-hidden border border-border bg-background shadow-2xl">
+              <div className="flex items-center gap-3 px-4 py-4 border-b border-border">
+                <Search className="w-5 h-5 text-muted" />
                 <input
                   ref={inputRef}
                   type="text"
@@ -160,17 +153,17 @@ export function CommandPalette({
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Search links, collections..."
-                  className="flex-1 bg-transparent outline-none focus:outline-none text-[15px]"
-                  style={{ color: textColor }}
+                  className="flex-1 bg-transparent outline-none text-[15px] text-foreground placeholder:text-muted"
+                  aria-label="Search links and collections"
                 />
-                <div className="flex items-center gap-1 px-2 py-1 rounded text-xs" style={{ background: '#252525', color: mutedColor }}>
+                <div className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-surface text-muted">
                   <Command className="w-3 h-3" />K
                 </div>
               </div>
 
               <div className="max-h-[400px] overflow-y-auto p-2">
                 {filteredItems.length === 0 ? (
-                  <div className="py-12 text-center" style={{ color: mutedColor }}>
+                  <div className="py-12 text-center text-muted">
                     <Sparkles className="w-8 h-8 mx-auto mb-3 opacity-50" />
                     <p className="text-[15px]">No results found</p>
                   </div>
@@ -178,7 +171,7 @@ export function CommandPalette({
                   <div className="space-y-1">
                     {groupedItems.actions.length > 0 && (
                       <div className="px-2 py-1">
-                        <p className="text-xs font-medium mb-2" style={{ color: mutedColor, letterSpacing: '0.05em' }}>ACTIONS</p>
+                        <p className="text-xs font-medium mb-2 text-muted tracking-wider uppercase">Actions</p>
                         {groupedItems.actions.map((item) => (
                           <CommandItemRow
                             key={item.id}
@@ -192,7 +185,7 @@ export function CommandPalette({
 
                     {groupedItems.nooks.length > 0 && (
                       <div className="px-2 py-1">
-                        <p className="text-xs font-medium mb-2" style={{ color: mutedColor, letterSpacing: '0.05em' }}>COLLECTIONS</p>
+                        <p className="text-xs font-medium mb-2 text-muted tracking-wider uppercase">Collections</p>
                         {groupedItems.nooks.map((item) => (
                           <CommandItemRow
                             key={item.id}
@@ -206,7 +199,7 @@ export function CommandPalette({
 
                     {groupedItems.links.length > 0 && (
                       <div className="px-2 py-1">
-                        <p className="text-xs font-medium mb-2" style={{ color: mutedColor, letterSpacing: '0.05em' }}>LINKS</p>
+                        <p className="text-xs font-medium mb-2 text-muted tracking-wider uppercase">Links</p>
                         {groupedItems.links.slice(0, 10).map((item) => (
                           <CommandItemRow
                             key={item.id}
@@ -216,7 +209,7 @@ export function CommandPalette({
                           />
                         ))}
                         {groupedItems.links.length > 10 && (
-                          <p className="px-3 py-2 text-xs" style={{ color: mutedColor }}>
+                          <p className="px-3 py-2 text-xs text-muted">
                             +{groupedItems.links.length - 10} more links
                           </p>
                         )}
@@ -226,18 +219,18 @@ export function CommandPalette({
                 )}
               </div>
 
-              <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: `1px solid ${borderColor}`, background: '#252525' }}>
-                <div className="flex items-center gap-4 text-xs" style={{ color: mutedColor }}>
+              <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-surface">
+                <div className="flex items-center gap-4 text-xs text-muted">
                   <span className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 rounded" style={{ background: bgColor }}>↑↓</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-background border border-border">↑↓</kbd>
                     Navigate
                   </span>
                   <span className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 rounded" style={{ background: bgColor }}>↵</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-background border border-border">↵</kbd>
                     Select
                   </span>
                 </div>
-                <span className="text-xs" style={{ color: mutedColor }}>esc to close</span>
+                <span className="text-xs text-muted">esc to close</span>
               </div>
             </div>
           </motion.div>
@@ -260,26 +253,25 @@ function CommandItemRow({
     <button
       onClick={onSelect}
       className={cn(
-        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all',
-        isSelected ? 'bg-[#2a2a2a]' : 'hover:bg-[#252525]'
+        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors',
+        isSelected ? 'bg-surface text-foreground' : 'text-muted hover:bg-surface'
       )}
-      style={{ color: isSelected ? textColor : mutedColor }}
     >
       <div className={cn(
         'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
-        isSelected ? 'bg-[#333]' : 'bg-[#252525]'
+        isSelected ? 'bg-surface' : 'bg-background'
       )}>
-        <span style={{ color: isSelected ? textColor : mutedColor }}>
+        <span className={isSelected ? 'text-foreground' : 'text-muted'}>
           {item.icon}
         </span>
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[14px] font-medium truncate">{item.title}</p>
         {item.subtitle && (
-          <p className="text-xs truncate" style={{ color: mutedColor }}>{item.subtitle}</p>
+          <p className="text-xs truncate text-muted">{item.subtitle}</p>
         )}
       </div>
-      {isSelected && <ArrowRight className="w-4 h-4" style={{ color: textColor }} />}
+      {isSelected && <ArrowRight className="w-4 h-4 text-foreground" />}
     </button>
   );
 }
