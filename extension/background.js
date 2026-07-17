@@ -1,10 +1,12 @@
+const NOOKS_URL = 'http://localhost:3000';
+
 chrome.runtime.onCommand.addListener((command) => {
   if (command === 'save-link') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
         const url = tabs[0].url;
         if (url && !url.startsWith('chrome://') && !url.startsWith('chrome-extension://')) {
-          const saveUrl = `${localUrl}/save?url=${encodeURIComponent(url)}`;
+          const saveUrl = `${NOOKS_URL}/save?url=${encodeURIComponent(url)}`;
           chrome.tabs.create({ url: saveUrl });
         }
       }
@@ -14,11 +16,7 @@ chrome.runtime.onCommand.addListener((command) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'openSavePage' && request.url) {
-    const saveUrl = `${localUrl}/save?url=${encodeURIComponent(request.url)}`;
+    const saveUrl = `${NOOKS_URL}/save?url=${encodeURIComponent(request.url)}`;
     chrome.tabs.create({ url: saveUrl });
   }
 });
-
-
-
-const localUrl = "http://localhost:3000"

@@ -1,7 +1,7 @@
 (function() {
   let hoverTimeout = null;
   let currentTooltip = null;
-  const NOOKS_URL = 'https://nooks.vercel.app';
+  const NOOKS_URL = 'http://localhost:3000';
 
   function createTooltip(link) {
     const tooltip = document.createElement('div');
