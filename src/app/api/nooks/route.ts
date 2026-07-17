@@ -6,8 +6,10 @@ import { generateId } from '@/lib/utils';
 export async function GET() {
   try {
     const db = getDb();
-    const allNooks = await db.select().from(nooks);
-    const allLinks = await db.select().from(links).orderBy(links.createdAt);
+    const [allNooks, allLinks] = await Promise.all([
+      db.select().from(nooks),
+      db.select().from(links).orderBy(links.createdAt),
+    ]);
 
     return NextResponse.json({ nooks: allNooks, links: allLinks });
   } catch (error) {

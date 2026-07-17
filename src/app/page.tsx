@@ -28,7 +28,7 @@ export default function Page() {
   };
 
   const toggleTheme = () => {
-    setDarkMode(!darkMode);
+    setDarkMode(prev => !prev);
     document.documentElement.classList.toggle('dark');
   };
 
