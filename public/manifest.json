@@ -1,0 +1,12 @@
+{
+  "name": "Nooks",
+  "short_name": "Nooks",
+  "description": "Curate your web, remember everything",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1c1c1c",
+  "theme_color": "#d97706",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
