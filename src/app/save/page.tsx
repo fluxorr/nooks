@@ -6,12 +6,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Check, Loader2, Tag, ArrowRight, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 
+type SaveResult = {
+  id: string;
+  title: string;
+  summary: string;
+  tags: string[];
+};
+
 function SaveContent() {
   const searchParams = useSearchParams();
   const url = searchParams.get('url') || '';
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<SaveResult | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
