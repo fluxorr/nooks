@@ -33,8 +33,8 @@ describe('generateId', () => {
     expect(ids.size).toBe(100);
   });
 
-  it('generates IDs of expected length', () => {
+  it('generates UUID v4 IDs', () => {
     const id = generateId();
-    expect(id.length).toBeGreaterThanOrEqual(10);
+    expect(id).toMatch(/^[0-9a-f-]{36}$/);
   });
 });
