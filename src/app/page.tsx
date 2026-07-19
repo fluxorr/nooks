@@ -6,10 +6,8 @@ import { Plus, Moon, Sun, Search, Sparkles, ArrowRight, Command, ExternalLink, B
 
 export default function Page() {
   const [url, setUrl] = useState('');
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     if (window.matchMedia('(prefers-color-scheme: light)').matches) {
       document.documentElement.classList.remove('dark');
     } else {
@@ -59,55 +57,47 @@ export default function Page() {
 
         {/* Hero */}
         <section className="pt-28 pb-20 px-6 sm:px-10">
-          {mounted && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <div className="max-w-2xl">
-                <h1 className="text-[36px] sm:text-[44px] font-semibold tracking-tight leading-[1.15] text-foreground mb-4">
-                  Curate the web,<br />
-                  <span className="text-foreground-subtle">remember everything</span>
-                </h1>
-                <p className="text-[15px] sm:text-[16px] leading-relaxed max-w-lg text-muted mb-8">
-                  Save links with AI summaries. Organize in collections called Nooks. Search instantly across everything you&apos;ve saved.
-                </p>
+          <div className="max-w-2xl">
+            <h1 className="text-[36px] sm:text-[44px] font-semibold tracking-tight leading-[1.15] text-foreground mb-4">
+              Curate the web,<br />
+              <span className="text-foreground-subtle">remember everything</span>
+            </h1>
+            <p className="text-[15px] sm:text-[16px] leading-relaxed max-w-lg text-muted mb-8">
+              Save links with AI summaries. Organize in collections called Nooks. Search instantly across everything you&apos;ve saved.
+            </p>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-5">
-                  <div className="flex-1 w-full max-w-sm flex items-center rounded-lg px-3 py-2.5 border border-border bg-surface hover:border-accent-light transition-colors">
-                    <input
-                      type="url"
-                      name="url"
-                      placeholder="Paste a link..."
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                      className="flex-1 bg-transparent text-[15px] outline-none text-foreground placeholder:text-foreground-subtle"
-                      autoComplete="url"
-                    />
-                  </div>
-                  <motion.button
-                    onClick={handleSave}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-1.5 px-5 py-2.5 shrink-0 rounded-lg text-sm font-medium bg-accent text-background hover:bg-accent-hover transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Save</span>
-                  </motion.button>
-                </div>
-
-                <div className="flex items-center gap-3 text-sm text-muted">
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface text-xs">
-                    <Command className="w-3 h-3" />
-                    <span className="font-mono text-[11px]">⇧⌘Z</span>
-                  </span>
-                  <span className="text-foreground-subtle text-[13px]">or right-click any link</span>
-                </div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-5">
+              <div className="flex-1 w-full max-w-sm flex items-center rounded-lg px-3 py-2.5 border border-border bg-surface hover:border-accent-light transition-colors">
+                <input
+                  type="url"
+                  name="url"
+                  placeholder="Paste a link..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                  className="flex-1 bg-transparent text-[15px] outline-none text-foreground placeholder:text-foreground-subtle"
+                  autoComplete="url"
+                />
               </div>
-            </motion.div>
-          )}
+              <motion.button
+                onClick={handleSave}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-1.5 px-5 py-2.5 shrink-0 rounded-lg text-sm font-medium bg-accent text-background hover:bg-accent-hover transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Save</span>
+              </motion.button>
+            </div>
+
+            <div className="flex items-center gap-3 text-sm text-muted">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface text-xs">
+                <Command className="w-3 h-3" />
+                <span className="font-mono text-[11px]">⇧⌘Z</span>
+              </span>
+              <span className="text-foreground-subtle text-[13px]">or right-click any link</span>
+            </div>
+          </div>
         </section>
 
         {/* How it works */}
