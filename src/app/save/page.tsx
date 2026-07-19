@@ -89,9 +89,9 @@ function SaveContent() {
                   </div>
                 )}
 
-                {result?.tags?.length > 0 && (
+                {result?.tags && result.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 justify-center mb-6">
-                    {result.tags.map((tag: string) => (
+                    {result.tags.map((tag) => (
                       <span key={tag} className="px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 bg-surface border border-border text-muted">
                         <Tag className="w-3 h-3" />{tag}
                       </span>
