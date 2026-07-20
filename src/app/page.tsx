@@ -2,7 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Moon, Sun, Search, Sparkles, ArrowRight, Command, ExternalLink, Bookmark } from 'lucide-react';
+import { Plus, Moon, Sun, Search, Sparkles, ArrowRight, ExternalLink, Bookmark } from 'lucide-react';
+import { Scales } from '@/components/Scales';
+
+function CommandIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M9 7a2 2 0 1 1 2 2H7a2 2 0 1 1 2-2v10a2 2 0 1 1-2-2h10a2 2 0 1 1-2 2V9a2 2 0 1 1 2-2H9z" />
+    </svg>
+  );
+}
 
 export default function Page() {
   const [url, setUrl] = useState('');
@@ -27,6 +44,7 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <div className="max-w-4xl mx-auto relative min-h-screen">
+
 
         {/* Nav */}
         <nav className="relative z-50 bg-background/90 backdrop-blur-md border-b border-border transition-colors duration-300">
@@ -90,10 +108,14 @@ export default function Page() {
               </motion.button>
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-muted">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-surface text-xs">
-                <Command className="w-3 h-3" />
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface">
+                <CommandIcon className="w-3.5 h-3.5" />
                 <span className="font-mono text-[11px]">⇧⌘Z</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface">
+                <CommandIcon className="w-3.5 h-3.5" />
+                <span className="font-mono text-[11px]">K</span>
               </span>
               <span className="text-foreground-subtle text-[13px]">or right-click any link</span>
             </div>
@@ -213,7 +235,7 @@ export default function Page() {
                     <Search className="w-4 h-4 text-muted shrink-0" />
                     <span className="text-[13px] text-foreground-subtle">design system</span>
                     <div className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-background text-muted border border-border">
-                      <Command className="w-2.5 h-2.5" />K
+                      <CommandIcon className="w-2.5 h-2.5" />K
                     </div>
                   </div>
                   <div className="p-2 space-y-0.5">
