@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, FolderOpen, Plus, ExternalLink, Trash2,
-  ArrowRight, Command, X, Sparkles
+  ArrowRight, X, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -157,7 +157,7 @@ export function CommandPalette({
                   aria-label="Search links and collections"
                 />
                 <div className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-surface text-muted">
-                  <Command className="w-3 h-3" />K
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M9 7a2 2 0 1 1 2 2H7a2 2 0 1 1 2-2v10a2 2 0 1 1-2-2h10a2 2 0 1 1-2 2V9a2 2 0 1 1 2-2H9z" /></svg>K
                 </div>
               </div>
 
