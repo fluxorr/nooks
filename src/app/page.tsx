@@ -337,6 +337,13 @@ export default function Page() {
           </div>
         </section>
 
+        <div className="fixed inset-y-0 left-1/2 -translate-x-[384px] w-6 pointer-events-none overflow-hidden opacity-[0.08] hidden lg:block">
+          <Scales size={8} orientation="vertical" />
+        </div>
+        <div className="fixed inset-y-0 right-1/2 translate-x-[384px] w-6 pointer-events-none overflow-hidden opacity-[0.08] hidden lg:block">
+          <Scales size={8} orientation="vertical" />
+        </div>
+
         {/* CTA */}
         <section className="py-20 px-6 sm:px-10 border-t border-border">
           <div className="max-w-xl mx-auto text-center">
