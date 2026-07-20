@@ -141,7 +141,7 @@ export function CommandPalette({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -20 }}
             transition={{ type: 'spring', damping: 30, stiffness: 350, mass: 0.8 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl z-50"
+            className="fixed top-[12%] left-1/2 -translate-x-1/2 w-full max-w-xl z-50"
           >
             <div className="rounded-2xl overflow-hidden border border-border bg-background shadow-2xl">
               <div className="flex items-center gap-3 px-4 py-4 border-b border-border">
