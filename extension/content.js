@@ -1,9 +1,11 @@
 (function () {
   let hoverTimeout = null;
+  let hideTimeout = null;
   let currentTooltip = null;
+  let currentLink = null;
 
   function isSaveable(url) {
-    return url && !url.startsWith('#') && !url.startsWith('javascript:') && !url.startsWith('chrome');
+    return url && !url.startsWith('#') && !url.startsWith('javascript:') && !url.startsWith('chrome') && !url.startsWith('about');
   }
 
   function createTooltip(link) {
@@ -27,8 +29,8 @@
       if (saving) return;
       saving = true;
 
-      btn.textContent = 'Saving...';
       btn.disabled = true;
+      btn.textContent = 'Saving...';
 
       try {
         await chrome.runtime.sendMessage({ action: 'saveLink', url: link.href });
@@ -37,11 +39,12 @@
         setTimeout(() => {
           tooltip.remove();
           currentTooltip = null;
+          currentLink = null;
         }, 1200);
       } catch {
         btn.textContent = 'Failed';
         setTimeout(() => {
-          btn.textContent = 'Nooks';
+          btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Nooks`;
           btn.disabled = false;
           saving = false;
         }, 2000);
@@ -51,29 +54,42 @@
     return tooltip;
   }
 
-  function showTooltip(e, link) {
+  function showTooltip(link) {
     if (!isSaveable(link.href)) return;
-    hideTooltip();
+    if (currentTooltip) hideTooltip();
 
     const rect = link.getBoundingClientRect();
     const tooltip = createTooltip(link);
+    currentLink = link;
+    currentTooltip = tooltip;
+
+    document.body.appendChild(tooltip);
+
+    // Position above the link, clamped to viewport
+    let top = rect.top - tooltip.offsetHeight - 6;
+    if (top < 6) {
+      top = rect.bottom + 6;
+    }
+    let left = rect.left + rect.width / 2 - tooltip.offsetWidth / 2;
+    left = Math.max(6, Math.min(left, window.innerWidth - tooltip.offsetWidth - 6));
 
     tooltip.style.cssText = `
       position: fixed;
-      left: ${rect.left + window.scrollX}px;
-      top: ${rect.top + window.scrollY - 40}px;
+      left: ${left}px;
+      top: ${top}px;
       z-index: 999999;
-      animation: nooksFadeIn 0.15s ease;
+      pointer-events: auto;
+      opacity: 1;
+      visibility: visible;
     `;
-
-    document.body.appendChild(tooltip);
-    currentTooltip = tooltip;
+    tooltip.classList.add('nooks-tooltip-visible');
   }
 
   function hideTooltip() {
     if (currentTooltip) {
       currentTooltip.remove();
       currentTooltip = null;
+      currentLink = null;
     }
   }
 
@@ -85,25 +101,51 @@
     return null;
   }
 
+  // Show tooltip after 500ms hover on a link
   document.addEventListener('mouseover', (e) => {
-    const link = getClosestLink(e.target);
-    if (!link) return;
+    const target = e.target;
 
-    hoverTimeout = setTimeout(() => {
-      showTooltip(e, link);
-    }, 400);
-  });
+    // If entering the tooltip itself, cancel hide
+    if (currentTooltip && currentTooltip.contains(target)) {
+      clearTimeout(hideTimeout);
+      return;
+    }
 
-  document.addEventListener('mouseout', (e) => {
-    const link = getClosestLink(e.target);
+    const link = getClosestLink(target);
     if (!link) return;
 
     clearTimeout(hoverTimeout);
-    setTimeout(hideTooltip, 150);
+    clearTimeout(hideTimeout);
+
+    hoverTimeout = setTimeout(() => showTooltip(link), 500);
   });
 
+  // Hide when leaving a link, but not if entering the tooltip
+  document.addEventListener('mouseout', (e) => {
+    const target = e.target;
+    const related = e.relatedTarget;
+
+    // If leaving the tooltip, start hide timer
+    if (currentTooltip && currentTooltip.contains(target)) {
+      if (currentLink && related && currentLink.contains(related)) return;
+      clearTimeout(hoverTimeout);
+      hideTimeout = setTimeout(hideTooltip, 200);
+      return;
+    }
+
+    const link = getClosestLink(target);
+    if (!link || link !== currentLink) return;
+
+    // If entering the tooltip, don't hide
+    if (currentTooltip && related && currentTooltip.contains(related)) return;
+
+    clearTimeout(hoverTimeout);
+    hideTimeout = setTimeout(hideTooltip, 200);
+  });
+
+  // Click outside tooltip closes it
   document.addEventListener('click', (e) => {
-    if (currentTooltip && !e.target.closest('.nooks-tooltip')) {
+    if (currentTooltip && !currentTooltip.contains(e.target)) {
       hideTooltip();
     }
   });
