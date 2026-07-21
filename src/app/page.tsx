@@ -112,7 +112,7 @@ export default function Page() {
               <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface">
                   <CommandIcon className="w-3.5 h-3.5" />
-                  <span className="font-mono text-[11px]">⇧⌘Z</span>
+                  <span className="font-mono text-[11px]">⇧⌘S</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface">
                   <CommandIcon className="w-3.5 h-3.5" />
