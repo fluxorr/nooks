@@ -46,8 +46,8 @@ The next step would be to establish the primitive layer and fill all 7 categorie
 
 ---
 
-<!-- The rest of this file is the TOKEN SPECIFICATION, not yet applied.
-     Delete this divider once tokens are applied. -->
+*Spine applied 2026-07-21. globals.css has 0 token-lint findings.*
+*Existing semantic vars kept backward compatible.*
 
 ## Layer 1: Primitive Tokens
 
