@@ -14,7 +14,15 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 3px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.nooks-tooltip-visible {
+  opacity: 1;
+  visibility: visible;
+  animation: nooksFadeIn 0.15s ease;
 }
 
 .nooks-save-btn {
@@ -31,6 +39,7 @@
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
   white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .nooks-save-btn:hover {
