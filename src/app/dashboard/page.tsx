@@ -159,6 +159,7 @@ export default function Dashboard() {
   const deleteSelected = async () => {
     const toDelete = Array.from(selectedIds);
     if (toDelete.length === 0) return;
+    if (!window.confirm(`Delete ${toDelete.length} link${toDelete.length > 1 ? 's' : ''}?`)) return;
 
     const count = toDelete.length;
     setLinks(prev => prev.filter(l => !selectedIds.has(l.id)));
@@ -356,7 +357,7 @@ export default function Dashboard() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface text-[15px] outline-none text-foreground placeholder:text-muted"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink-400/40 text-foreground placeholder:text-muted"
                   aria-label="Search links"
                 />
               </div>
@@ -404,7 +405,7 @@ export default function Dashboard() {
                       value={newNookName}
                       onChange={(e) => setNewNookName(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && !creatingNook && createNook()}
-                      className="w-full px-3 py-2.5 rounded-xl text-sm border border-border bg-background text-foreground placeholder:text-foreground-subtle outline-none mb-3"
+                      className="w-full px-3 py-2.5 rounded-xl text-sm border border-border bg-background text-foreground placeholder:text-foreground-subtle outline-none focus-visible:ring-2 focus-visible:ring-ink-400/40 mb-3"
                       autoFocus
                       disabled={creatingNook}
                       aria-label="Collection name"
