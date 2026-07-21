@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -12,9 +13,15 @@
     .header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
       padding: 12px 16px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .logo {
       width: 24px;
@@ -27,6 +34,14 @@
     }
     .logo svg { width: 14px; height: 14px; }
     .title { font-weight: 600; font-size: 14px; }
+    .options-link {
+      color: #737373;
+      padding: 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .options-link:hover { color: #fafafa; background: rgba(255,255,255,0.08); }
     .content { padding: 16px; }
     .shortcut {
       display: flex;
@@ -45,7 +60,26 @@
       border-radius: 4px;
       font-size: 11px;
       font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.06);
+      min-width: 26px;
+      text-align: center;
     }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: #525252;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #525252;
+    }
+    .status-dot.ok { background: #22c55e; }
+    .status-dot.err { background: #ef4444; }
     .btn {
       width: 100%;
       padding: 12px;
@@ -56,10 +90,11 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s, opacity 0.15s;
+      transition: background 0.15s, opacity 0.15s, transform 0.08s;
     }
     .btn:hover { background: #d4921e; }
-    .btn:disabled { opacity: 0.6; cursor: default; }
+    .btn:active { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.6; cursor: default; transform: none; }
     .hint {
       text-align: center;
       font-size: 11px;
@@ -77,25 +112,35 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <span class="title">Nooks</span>
     </div>
-    <span class="title">Nooks</span>
+    <svg id="optionsLink" class="options-link" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+    </svg>
   </div>
   <div class="content">
     <div class="shortcut">
       <span class="shortcut-label">Quick save</span>
-      <div class="shortcut-key">
+      <div class="shortcut-key" id="shortcutKeys">
         <span class="key">Cmd</span>
         <span class="key">Shift</span>
-        <span class="key">Z</span>
+        <span class="key">S</span>
       </div>
+    </div>
+    <div class="status" id="statusRow" title="Checking connection to Nooks server...">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Checking server...</span>
     </div>
     <button class="btn" id="saveBtn">Save Current Page</button>
     <p class="hint">Or right-click any link → Save to Nooks</p>
-    <p class="server-hint">loading...</p>
+    <p class="server-hint" id="serverHint">loading...</p>
   </div>
   <script src="popup.js"></script>
 </body>
