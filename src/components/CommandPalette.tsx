@@ -7,6 +7,7 @@ import {
   ArrowRight, X, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Kbd } from '@/components/ui/Kbd';
 
 type CommandItem = {
   id: string;
@@ -222,11 +223,11 @@ export function CommandPalette({
               <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-surface">
                 <div className="flex items-center gap-4 text-xs text-muted">
                   <span className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 rounded bg-background border border-border">↑↓</kbd>
+                    <Kbd className="bg-background">↑↓</Kbd>
                     Navigate
                   </span>
                   <span className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 rounded bg-background border border-border">↵</kbd>
+                    <Kbd className="bg-background">↵</Kbd>
                     Select
                   </span>
                 </div>

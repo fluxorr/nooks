@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Moon, Sun, Search, Sparkles, ArrowRight, ExternalLink, Bookmark } from 'lucide-react';
+import { Plus, Search, Sparkles, ArrowRight, ExternalLink, Bookmark } from 'lucide-react';
 import { Scales } from '@/components/Scales';
+import { NavBar } from '@/components/NavBar';
+import { Tag } from '@/components/ui/Tag';
+import { Kbd } from '@/components/ui/Kbd';
 
 function CommandIcon({ className }: { className?: string }) {
   return (
@@ -47,32 +50,17 @@ export default function Page() {
         <div className="max-w-4xl mx-auto relative min-h-screen border-x border-neutral-400/30 outline outline-neutral-400/20 outline-offset-8 ring ring-neutral-400/10 h-[160%]">
 
 
-          {/* Nav */}
-          <nav className="relative z-50 bg-background/90 backdrop-blur-md border-b border-border transition-colors duration-300">
-            <div className="px-6 sm:px-10 py-3 flex items-center justify-between">
-              <motion.span whileHover={{ scale: 1.02 }} className="font-medium cursor-pointer">nooks</motion.span>
-              <div className="flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={toggleTheme}
-                  aria-label="Toggle theme"
-                  className="p-2.5 rounded-lg hover:bg-surface text-muted transition-colors"
-                >
-                  <Sun className="w-[18px] h-[18px] hidden dark:block" />
-                  <Moon className="w-[18px] h-[18px] block dark:hidden" />
-                </motion.button>
-                <motion.a
-                  href="/dashboard"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="text-sm px-4 py-2 rounded-lg border border-border bg-surface-alt text-foreground hover:bg-accent-light transition-colors"
-                >
-                  Dashboard
-                </motion.a>
-              </div>
-            </div>
-          </nav>
+          <NavBar
+            onToggleTheme={toggleTheme}
+            actions={
+              <a
+                href="/dashboard"
+                className="text-sm px-4 py-2 rounded-lg border border-border bg-surface-alt text-foreground hover:bg-accent-light transition-colors"
+              >
+                Dashboard
+              </a>
+            }
+          />
 
           {/* Hero */}
           <section className="pt-28 pb-20 px-6 sm:px-10">
@@ -205,9 +193,7 @@ export default function Page() {
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {['design-systems', 'frontend', 'css', 'ui'].map(tag => (
-                          <span key={tag} className="px-2 py-0.5 rounded-md text-[11px] border border-border bg-background text-muted">
-                            {tag}
-                          </span>
+                          <Tag key={tag}>{tag}</Tag>
                         ))}
                       </div>
                     </div>
@@ -228,7 +214,7 @@ export default function Page() {
                     </div>
                     <h3 className="text-[17px] font-medium tracking-tight text-foreground mb-1">Find it in seconds</h3>
                     <p className="text-[14px] text-muted leading-relaxed">
-                      Press <kbd className="px-1.5 py-0.5 rounded text-xs font-mono bg-surface border border-border text-foreground-tertiary">⌘K</kbd> anywhere in the app to search across all your links and collections. Filter by nook, or just type what you remember.
+                      Press <Kbd>⌘K</Kbd> anywhere in the app to search across all your links and collections. Filter by nook, or just type what you remember.
                     </p>
                   </div>
                   <div className="flex-1 w-full rounded-2xl border border-border bg-surface overflow-hidden">
