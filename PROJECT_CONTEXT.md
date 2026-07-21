@@ -212,6 +212,8 @@ Vitest v4. Tests cover:
 
 Run: `npm test`
 
+**Last result:** 3 test files, 51 tests, all passing. Lint passes (pre-existing warnings only).
+
 ## Linting / Code Style
 
 - ESLint: `next/core-web-vitals` + custom rules
