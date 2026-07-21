@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useState, useEffect, Children, ReactNode } from 'react';
+import { useCallback, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { MotionConfig } from 'framer-motion';
 
 interface ViewTransitionsProps {
   children: ReactNode;
@@ -33,7 +34,11 @@ export function ViewTransitions({ children }: ViewTransitionsProps) {
     return () => document.removeEventListener('click', interceptor);
   }, []);
 
-  return <>{children}</>;
+  return (
+    <MotionConfig reducedMotion="user">
+      {children}
+    </MotionConfig>
+  );
 }
 
 interface ViewTransitionLinkProps {
