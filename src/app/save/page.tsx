@@ -3,8 +3,11 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Check, Loader2, Tag, ArrowRight, Sun, Moon } from 'lucide-react';
+import { Sparkles, Check, Loader2, Tag as TagIcon, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { NavBar } from '@/components/NavBar';
+import { Tag } from '@/components/ui/Tag';
+import { Kbd } from '@/components/ui/Kbd';
 
 type SaveResult = {
   id: string;
@@ -50,18 +53,7 @@ function SaveContent() {
       <div className="fixed inset-y-0 left-0 right-0 pointer-events-none mx-auto max-w-md border-x border-dashed border-border" />
 
       <div className="max-w-md mx-auto relative min-h-screen border-x border-border">
-        {/* Nav */}
-        <nav className="relative z-50 bg-background/90 backdrop-blur-md border-b border-border transition-colors duration-300">
-          <div className="px-6 py-3 flex items-center justify-between">
-            <Link href="/" className="font-medium cursor-pointer hover:opacity-80 transition-opacity">nooks</Link>
-            <div className="flex items-center gap-2">
-              <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={toggleTheme} aria-label="Toggle theme" className="p-2 rounded-lg hover:bg-surface text-muted">
-                <Sun className="w-4 h-4 hidden dark:block" />
-                <Moon className="w-4 h-4 block dark:hidden" />
-              </motion.button>
-            </div>
-          </div>
-        </nav>
+        <NavBar onToggleTheme={toggleTheme} />
 
         <div className="p-6">
           <AnimatePresence mode="wait">
@@ -77,7 +69,27 @@ function SaveContent() {
             ) : saved ? (
               <motion.div key="saved" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="text-center pt-4">
                 <div className="w-14 h-14 mx-auto mb-5 rounded-2xl flex items-center justify-center bg-surface">
-                  <Check className="w-7 h-7 text-foreground" />
+                  <motion.svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-foreground"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 15, stiffness: 200, delay: 0.1 }}
+                  >
+                    <motion.path
+                      d="M20 6L9 17l-5-5"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+                    />
+                  </motion.svg>
                 </div>
                 <h2 className="text-[18px] font-medium mb-1 text-foreground">Saved!</h2>
                 <p className="text-xs mb-6 truncate text-muted">{url}</p>
@@ -93,7 +105,7 @@ function SaveContent() {
                   <div className="flex flex-wrap gap-2 justify-center mb-6">
                     {result.tags.map((tag) => (
                       <span key={tag} className="px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 bg-surface border border-border text-muted">
-                        <Tag className="w-3 h-3" />{tag}
+                        <TagIcon className="w-3 h-3" />{tag}
                       </span>
                     ))}
                   </div>

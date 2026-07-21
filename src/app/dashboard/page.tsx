@@ -2,9 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Home, Keyboard, Sun, Moon, Check, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
+import { NavBar } from '@/components/NavBar';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Tag } from '@/components/ui/Tag';
+import { Kbd } from '@/components/ui/Kbd';
 import { staggerContainer, staggerItem, useViewTransition } from '@/components/ViewTransitions';
 import Link from 'next/link';
 
@@ -136,7 +140,7 @@ export default function Dashboard() {
     if (!link) return;
     setLinks(prev => prev.filter(l => l.id !== linkId));
     selectedIds.delete(linkId);
-    showToast('Link deleted', {
+    showToast(`"${link.title || 'Link'}" deleted`, {
       label: 'Undo',
       onClick: async () => {
         setLinks(prev => [...prev, link]);
@@ -247,36 +251,25 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto relative flex flex-col min-h-screen border-x border-border">
         <CommandPalette isOpen={isCommandOpen} onClose={() => setCommandOpen(false)} links={links.map(l => ({ id: l.id, url: l.url, title: l.title || l.url }))} nooks={nooks} onNavigateToNook={(id) => setSelectedNook(id)} onCreateNook={() => setShowNewNook(true)} onDeleteLink={deleteLink} />
 
-        {/* Nav */}
-        <nav className="relative z-50 bg-background/90 backdrop-blur-md border-b border-border transition-colors duration-300">
-          <div className="px-6 sm:px-8 py-3 flex items-center justify-between">
-            <Link href="/" className="font-medium cursor-pointer hover:opacity-80 transition-opacity">nooks</Link>
-            <div className="flex items-center gap-2 sm:gap-3">
+        <NavBar
+          onToggleTheme={toggleTheme}
+          actions={
+            <>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCommandOpen(true)}
                 aria-label="Search (Cmd+K)"
-                className="p-2 sm:p-2.5 rounded-lg hover:bg-surface text-muted transition-colors"
+                className="p-2.5 rounded-lg hover:bg-surface text-muted transition-colors"
               >
                 <Search className="w-[18px] h-[18px]" />
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleTheme}
-                aria-label="Toggle theme"
-                className="p-2 sm:p-2.5 rounded-lg hover:bg-surface text-muted transition-colors"
-              >
-                <Sun className="w-[18px] h-[18px] hidden dark:block" />
-                <Moon className="w-[18px] h-[18px] block dark:hidden" />
-              </motion.button>
-              <Link href="/" className="text-sm px-3 sm:px-4 py-2 rounded-lg border border-border bg-surface-alt text-foreground hover:bg-accent-light transition-colors">
+              <Link href="/" className="text-sm px-4 py-2 rounded-lg border border-border bg-surface-alt text-foreground hover:bg-accent-light transition-colors">
                 Home
               </Link>
-            </div>
-          </div>
-        </nav>
+            </>
+          }
+        />
 
         {/* Toast notification */}
         <AnimatePresence>
@@ -441,7 +434,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2 text-xs text-muted">
                   <Keyboard className="w-4 h-4" />
                   <span>Press</span>
-                  <kbd className="px-1.5 py-0.5 rounded text-xs font-mono bg-surface border border-border text-foreground-tertiary">⌘K</kbd>
+                  <Kbd>⌘K</Kbd>
                   <span>to search</span>
                 </div>
               </motion.div>
@@ -521,19 +514,27 @@ export default function Dashboard() {
             )}
 
             {fetchError && !loading ? (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-24">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center border border-border bg-surface"><Link2 className="w-10 h-10 text-muted" /></div>
-                <h3 className="text-lg font-semibold mb-2 text-foreground">Failed to load data</h3>
-                <p className="text-muted text-sm mb-6">Check your connection and try again.</p>
-                <button onClick={fetchData} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-accent text-background hover:bg-accent-hover transition-colors">Retry</button>
-              </motion.div>
+              <EmptyState
+                icon={<Link2 className="w-10 h-10 text-muted" />}
+                title="Failed to load data"
+                description="Check your connection and try again."
+                action={
+                  <button onClick={fetchData} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-accent text-background hover:bg-accent-hover transition-colors">
+                    Retry
+                  </button>
+                }
+              />
             ) : filteredLinks.length === 0 ? (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-24">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center border border-border bg-surface"><Link2 className="w-10 h-10 text-muted" /></div>
-                <h3 className="text-lg font-semibold mb-2 text-foreground">No links here yet</h3>
-                <p className="text-muted text-sm max-w-sm mx-auto mb-6">Save links from the homepage or use the browser extension</p>
-                <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-accent text-background hover:bg-accent-hover transition-colors">Save your first link</Link>
-              </motion.div>
+              <EmptyState
+                icon={<Link2 className="w-10 h-10 text-muted" />}
+                title="No links here yet"
+                description="Save links from the homepage or use the browser extension"
+                action={
+                  <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-accent text-background hover:bg-accent-hover transition-colors">
+                    Save your first link
+                  </Link>
+                }
+              />
             ) : (
               <motion.div variants={staggerContainer} initial="hidden" animate={showLinks ? "show" : "hidden"} className="space-y-1.5">
                 {filteredLinks.map((link, index) => (
@@ -543,22 +544,43 @@ export default function Dashboard() {
                     onMouseEnter={() => setHoveredLink(link.id)}
                     onMouseLeave={() => setHoveredLink(null)}
                     className={cn(
-                      'group p-4 rounded-xl border transition-colors',
-                      selectedIds.has(link.id) ? 'border-accent/30 bg-accent/5' : 'border-border bg-surface'
+                      'group p-4 rounded-xl border transition-all duration-200 ease-out',
+                      selectedIds.has(link.id) ? 'border-accent/30 bg-accent/5' : 'border-border bg-surface hover:bg-surface-elevated hover:shadow-sm'
                     )}
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
                       <button
                         onClick={(e) => toggleSelect(link.id, index, e.shiftKey)}
                         className={cn(
-                          'w-5 h-5 rounded border mt-0.5 shrink-0 transition-colors flex items-center justify-center',
+                          'w-5 h-5 rounded border mt-0.5 shrink-0 transition-all duration-150 flex items-center justify-center',
                           selectedIds.has(link.id)
                             ? 'bg-accent border-accent text-background'
                             : 'border-border opacity-0 group-hover:opacity-100 hover:border-foreground-muted'
                         )}
                         aria-label={selectedIds.has(link.id) ? 'Deselect' : 'Select'}
                       >
-                        {selectedIds.has(link.id) && <Check className="w-3 h-3" />}
+                        <AnimatePresence mode="wait">
+                          {selectedIds.has(link.id) && (
+                            <motion.svg
+                              key="check"
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              initial={{ pathLength: 0 }}
+                              animate={{ pathLength: 1 }}
+                              exit={{ pathLength: 0 }}
+                              transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                              className="w-3 h-3"
+                            >
+                              <motion.path d="M20 6L9 17l-5-5" />
+                            </motion.svg>
+                          )}
+                        </AnimatePresence>
                       </button>
                       <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-xl flex items-center justify-center shrink-0 bg-background border border-border">
                         <Globe className="w-4 sm:w-5 h-4 sm:h-5 text-muted" />
@@ -597,7 +619,7 @@ export default function Dashboard() {
                         {link.tags && link.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-3">
                             {link.tags.slice(0, 4).map(t => (
-                              <span key={t} className="px-2 py-0.5 rounded-md text-xs border border-border bg-background text-muted">{t}</span>
+                              <Tag key={t}>{t}</Tag>
                             ))}
                           </div>
                         )}
