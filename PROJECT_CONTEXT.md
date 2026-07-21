@@ -196,6 +196,16 @@ CSS custom properties in `src/app/globals.css`. Dark mode via `.dark` class on `
 
 Tailwind config maps these to utility classes: `bg-background`, `text-foreground`, `border-border`, etc.
 
+### Token Spine (3-layer, established 2026-07)
+
+| Layer | What | Files |
+|-------|------|-------|
+| Layer 1 — Primitives | `nook-*` warm neutral ramp, `ink-*` monochrome accent ramp, `amber-*` brand ramp, 8pt spacing scale, type scale, radii scale, shadow scale, motion tokens, z-index tokens | `globals.css` `:root` block inside `@layer base` |
+| Layer 2 — Semantics | `--background`, `--foreground`, `--accent`, `--surface`, `--border` (light + dark) existing vars, backward compatible | `globals.css` `:root` and `.dark` blocks |
+| Layer 3 — Components | Created on demand per component | N/A yet |
+
+All 7 token categories covered. New code can reference primitives via Tailwind: `bg-nook-800`, `text-ink-500`, `bg-amber-600`, etc.
+
 ### Typography
 
 - Body: system-ui stack (`-apple-system, SF Pro Display, SF Pro Text, Helvetica Neue`)
@@ -242,3 +252,10 @@ Run: `npm test`
 
 ### fix(site): align landing page shortcut badge with extension
 - Changed badge from `⇧⌘Z` to `⇧⌘S`
+
+### feat(tokens): establish 3-layer token spine in globals.css
+- Added Layer 1 primitives: nook-* neutral ramp, ink-* accent ramp, amber-* brand ramp, status bases, 8pt spacing scale, type scale (xs-5xl), radii scale (sm-full), shadow scale (sm-xl), motion tokens (duration + easing), z-index tokens
+- Added `color-scheme: light dark` for native form control support
+- Kept all existing semantic Layer 2 vars unchanged (backward compatible)
+- Fixed `3px` scrollbar radius → `var(--radius-sm)`, `gradient-text` raw hex → `var(--foreground)`/`var(--foreground-muted)`
+- Exposed new primitives in `tailwind.config.ts` as `nook`/`ink`/`amber` color families
