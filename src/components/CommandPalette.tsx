@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, FolderOpen, Plus, ExternalLink, Trash2,
-  ArrowRight, X, Sparkles
+  Search, Plus, ExternalLink,
+  ArrowRight, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Kbd } from '@/components/ui/Kbd';
@@ -23,9 +23,8 @@ type CommandPaletteProps = {
   onClose: () => void;
   links: { id: string; url: string; title: string }[];
   nooks: { id: string; name: string; color: string }[];
-  onNavigateToNook: (nookId: string) => void;
+  onNavigateToNook: (_nookId: string) => void;
   onCreateNook: () => void;
-  onDeleteLink: (linkId: string) => void;
 };
 
 export function CommandPalette({
@@ -35,7 +34,6 @@ export function CommandPalette({
   nooks,
   onNavigateToNook,
   onCreateNook,
-  onDeleteLink,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);

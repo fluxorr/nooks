@@ -1,4 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { NextRequest } from 'next/server';
+
+function mockSelect(result: unknown[] = []) {
+  return vi.fn(() => ({
+    from: vi.fn(() => ({
+      orderBy: vi.fn().mockResolvedValue(result),
+      where: vi.fn(() => ({
+        limit: vi.fn().mockResolvedValue(result),
+      })),
+    })),
+  }));
+}
 
 const mockDbInstance = {
   insert: vi.fn(() => ({
@@ -12,11 +24,7 @@ const mockDbInstance = {
   delete: vi.fn(() => ({
     where: vi.fn().mockResolvedValue(undefined),
   })),
-  select: vi.fn(() => ({
-    from: vi.fn(() => ({
-      orderBy: vi.fn().mockResolvedValue([]),
-    })),
-  })),
+  select: mockSelect([]),
 };
 
 vi.mock('@/db', () => ({
@@ -36,12 +44,12 @@ vi.mock('openai', () => {
   return { default: MockOpenAI };
 });
 
-function createRequest(body: unknown, method = 'POST'): Request {
+function createRequest(body: unknown, method = 'POST'): NextRequest {
   return new Request('http://localhost:3000/api/save', {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
-  });
+  }) as unknown as NextRequest;
 }
 
 async function parseResponse(res: Response) {
@@ -105,7 +113,7 @@ describe('POST /api/save', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: 'not-json',
-    });
+    }) as unknown as NextRequest;
     const res = await POST(req);
     const { status, body } = await parseResponse(res);
     expect(status).toBe(400);
@@ -117,7 +125,7 @@ describe('POST /api/save', () => {
     const req = new Request('http://localhost:3000/api/save', {
       method: 'POST',
       body: JSON.stringify({ url: 'https://example.com' }),
-    });
+    }) as unknown as NextRequest;
     const res = await POST(req);
     const { status, body } = await parseResponse(res);
     expect(status).toBe(415);
@@ -192,13 +200,7 @@ describe('PATCH /api/nooks', () => {
   });
 
   it('rejects non-existent nook with 404', async () => {
-    mockDbInstance.select.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn().mockResolvedValue([]),
-        })),
-      })),
-    });
+    mockDbInstance.select = mockSelect([]);
     const { PATCH } = await import('../nooks/route');
     const res = await PATCH(createRequest({ id: 'nonexistent', isPublic: true }));
     const { status } = await parseResponse(res);
@@ -206,13 +208,7 @@ describe('PATCH /api/nooks', () => {
   });
 
   it('accepts valid publish toggle', async () => {
-    mockDbInstance.select.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn().mockResolvedValue([{ id: 'abc', name: 'Test' }]),
-        })),
-      })),
-    });
+    mockDbInstance.select = mockSelect([{ id: 'abc', name: 'Test' }]);
     const { PATCH } = await import('../nooks/route');
     const res = await PATCH(createRequest({ id: 'abc', isPublic: true }));
     const { status } = await parseResponse(res);
