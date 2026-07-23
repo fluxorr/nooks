@@ -180,6 +180,46 @@ describe('POST /api/nooks', () => {
   });
 });
 
+describe('PATCH /api/nooks', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+
+  it('rejects missing id with 400', async () => {
+    const { PATCH } = await import('../nooks/route');
+    const res = await PATCH(createRequest({ isPublic: true }));
+    const { status, body } = await parseResponse(res);
+    expect(status).toBe(400);
+    expect(body.error).toBe('Invalid request');
+  });
+
+  it('rejects non-existent nook with 404', async () => {
+    mockDbInstance.select.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn().mockResolvedValue([]),
+        })),
+      })),
+    });
+    const { PATCH } = await import('../nooks/route');
+    const res = await PATCH(createRequest({ id: 'nonexistent', isPublic: true }));
+    const { status } = await parseResponse(res);
+    expect(status).toBe(404);
+  });
+
+  it('accepts valid publish toggle', async () => {
+    mockDbInstance.select.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn().mockResolvedValue([{ id: 'abc', name: 'Test' }]),
+        })),
+      })),
+    });
+    const { PATCH } = await import('../nooks/route');
+    const res = await PATCH(createRequest({ id: 'abc', isPublic: true }));
+    const { status } = await parseResponse(res);
+    expect(status).toBe(200);
+  });
+});
+
 describe('PATCH /api/links', () => {
   it('rejects missing linkId with 400', async () => {
     const { PATCH } = await import('../links/route');

@@ -23,3 +23,8 @@ export const createNookSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name must be under 100 characters'),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Color must be a valid hex color').optional(),
 });
+
+export const updateNookSchema = z.object({
+  id: z.string().min(1, 'id is required'),
+  isPublic: z.boolean(),
+});
