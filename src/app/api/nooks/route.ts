@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getDb } from '@/db';
 import { nooks, links } from '@/db/schema';
 import { generateId } from '@/lib/utils';
 import { createNookSchema } from '@/lib/validation';
+import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
 
 export async function GET() {
   try {
@@ -12,23 +13,22 @@ export async function GET() {
       db.select().from(links).orderBy(links.createdAt),
     ]);
 
-    return NextResponse.json({ nooks: allNooks, links: allLinks });
+    return apiSuccess({ nooks: allNooks, links: allLinks });
   } catch (error) {
     console.error('Fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+    return apiError('Failed to fetch', 500);
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const parsed = createNookSchema.safeParse(body);
+    const { json, error } = await requireJson(req);
+    if (error) return error;
+
+    const parsed = createNookSchema.safeParse(json);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return apiError('Invalid request', 400, parsed.error.flatten().fieldErrors);
     }
 
     const { name, color } = parsed.data;
@@ -41,9 +41,9 @@ export async function POST(req: NextRequest) {
       color: color || '#f5a623',
     });
 
-    return NextResponse.json({ id, name, color: color || '#f5a623' });
+    return apiSuccess({ id, name, color: color || '#f5a623' });
   } catch (error) {
     console.error('Create nook error:', error);
-    return NextResponse.json({ error: 'Failed to create nook' }, { status: 500 });
+    return apiError('Failed to create nook', 500);
   }
 }

@@ -99,7 +99,7 @@ describe('POST /api/save', () => {
     expect(status).toBe(400);
   });
 
-  it('handles malformed JSON body gracefully — returns 500', async () => {
+  it('rejects malformed JSON body with 400', async () => {
     const { POST } = await import('../save/route');
     const req = new Request('http://localhost:3000/api/save', {
       method: 'POST',
@@ -107,8 +107,21 @@ describe('POST /api/save', () => {
       body: 'not-json',
     });
     const res = await POST(req);
-    const { status } = await parseResponse(res);
-    expect(status).toBe(500);
+    const { status, body } = await parseResponse(res);
+    expect(status).toBe(400);
+    expect(body.error).toBe('Invalid JSON body');
+  });
+
+  it('rejects request without Content-Type with 415', async () => {
+    const { POST } = await import('../save/route');
+    const req = new Request('http://localhost:3000/api/save', {
+      method: 'POST',
+      body: JSON.stringify({ url: 'https://example.com' }),
+    });
+    const res = await POST(req);
+    const { status, body } = await parseResponse(res);
+    expect(status).toBe(415);
+    expect(body.error).toBe('Content-Type must be application/json');
   });
 
   it('accepts valid URL and inserts into DB', async () => {

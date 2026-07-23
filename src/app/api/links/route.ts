@@ -1,51 +1,50 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { moveLinkSchema, deleteLinkSchema } from '@/lib/validation';
+import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
 
 export async function PATCH(req: NextRequest) {
   try {
-    const body = await req.json();
-    const parsed = moveLinkSchema.safeParse(body);
+    const { json, error } = await requireJson(req);
+    if (error) return error;
+
+    const parsed = moveLinkSchema.safeParse(json);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return apiError('Invalid request', 400, parsed.error.flatten().fieldErrors);
     }
 
     const { linkId, nookId } = parsed.data;
     const db = getDb();
     await db.update(links).set({ nookId }).where(eq(links.id, linkId));
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     console.error('Update link error:', error);
-    return NextResponse.json({ error: 'Failed to update link' }, { status: 500 });
+    return apiError('Failed to update link', 500);
   }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const body = await req.json();
-    const parsed = deleteLinkSchema.safeParse(body);
+    const { json, error } = await requireJson(req);
+    if (error) return error;
+
+    const parsed = deleteLinkSchema.safeParse(json);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return apiError('Invalid request', 400, parsed.error.flatten().fieldErrors);
     }
 
     const { linkId } = parsed.data;
     const db = getDb();
     await db.delete(links).where(eq(links.id, linkId));
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     console.error('Delete link error:', error);
-    return NextResponse.json({ error: 'Failed to delete link' }, { status: 500 });
+    return apiError('Failed to delete link', 500);
   }
 }

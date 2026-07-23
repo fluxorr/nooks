@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import OpenAI from 'openai';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
 import { generateId } from '@/lib/utils';
 import { saveLinkSchema } from '@/lib/validation';
+import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
 
 function getOpenAI() {
   return new OpenAI({
@@ -65,14 +66,13 @@ Respond in JSON format:
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const parsed = saveLinkSchema.safeParse(body);
+    const { json, error } = await requireJson(req);
+    if (error) return error;
+
+    const parsed = saveLinkSchema.safeParse(json);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Invalid request', details: parsed.error.flatten().fieldErrors },
-        { status: 400 }
-      );
+      return apiError('Invalid request', 400, parsed.error.flatten().fieldErrors);
     }
 
     const { url, nookId } = parsed.data;
@@ -103,9 +103,9 @@ export async function POST(req: NextRequest) {
       tags,
     });
 
-    return NextResponse.json({ id: linkId, title, summary, tags });
+    return apiSuccess({ id: linkId, title, summary, tags });
   } catch (error) {
     console.error('Save error:', error);
-    return NextResponse.json({ error: 'Failed to save link' }, { status: 500 });
+    return apiError('Failed to save link', 500);
   }
 }
