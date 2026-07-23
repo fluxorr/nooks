@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
 import { NavBar } from '@/components/NavBar';
@@ -238,6 +238,26 @@ export default function Dashboard() {
     </div>
   );
 
+  const exportLinksAsJson = () => {
+    const data = filteredLinks.map(l => ({
+      title: l.title, url: l.url, summary: l.summary,
+      tags: l.tags, nook: nooks.find(n => n.id === l.nookId)?.name || 'Inbox',
+      savedAt: l.createdAt,
+    }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `nooks-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  const copyUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Link copied to clipboard');
+    } catch { showToast('Failed to copy link'); }
+  };
+
   const toggleTheme = () => {
     document.documentElement.classList.toggle('dark');
   };
@@ -448,6 +468,15 @@ export default function Dashboard() {
                 <span className="text-sm text-muted hidden sm:inline">{filteredLinks.length} link{filteredLinks.length !== 1 ? 's' : ''}</span>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={exportLinksAsJson}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm text-muted hover:text-foreground hover:bg-surface transition-colors"
+                  aria-label="Export links as JSON"
+                  title="Export as JSON"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline text-xs">Export</span>
+                </button>
                 {/* Sort */}
                 <div className="relative" ref={sortRef}>
                   <button
@@ -609,6 +638,7 @@ export default function Dashboard() {
                                 {nooks.map(n => <button key={n.id} onClick={() => moveLink(link.id, n.id)} className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-surface text-muted"><div className="w-3.5 h-3.5 rounded-full" style={{ background: n.color }} />{n.name}</button>)}
                               </div>
                             </div>
+                            <button onClick={() => copyUrl(link.url)} className="p-2 rounded-xl hover:bg-surface text-muted hover:text-foreground transition-colors" aria-label="Copy URL"><Copy className="w-4 h-4" /></button>
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl hover:bg-surface text-muted hover:text-foreground transition-colors" aria-label="Open link"><ExternalLink className="w-4 h-4" /></a>
                             <button onClick={() => deleteLink(link.id)} className="p-2 rounded-xl hover:bg-surface text-muted hover:text-red-500 transition-colors" aria-label="Delete link"><Trash2 className="w-4 h-4" /></button>
                           </motion.div>
