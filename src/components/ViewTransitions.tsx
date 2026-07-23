@@ -32,7 +32,7 @@ export function ViewTransitions({ children }: ViewTransitionsProps) {
 
     document.addEventListener('click', interceptor);
     return () => document.removeEventListener('click', interceptor);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <MotionConfig reducedMotion="user">
@@ -125,7 +125,7 @@ export const staggerItem = {
 // Optimistic update hook
 export function useOptimisticUpdate<T>(
   initialValue: T,
-  onUpdate: (newValue: T) => Promise<void>
+  onUpdate: (_newValue: T) => Promise<void>
 ) {
   const [value, setValue] = useState(initialValue);
   const [isLoading, setIsLoading] = useState(false);

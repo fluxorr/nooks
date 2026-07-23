@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,7 +9,7 @@ import { NavBar } from '@/components/NavBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Tag } from '@/components/ui/Tag';
 import { Kbd } from '@/components/ui/Kbd';
-import { staggerContainer, staggerItem, useViewTransition } from '@/components/ViewTransitions';
+import { staggerContainer, staggerItem } from '@/components/ViewTransitions';
 import Link from 'next/link';
 
 type Nook = { id: string; name: string; color: string; isPublic: boolean };
@@ -44,8 +44,6 @@ export default function Dashboard() {
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
-  const { push } = useViewTransition();
-
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
@@ -76,7 +74,7 @@ export default function Dashboard() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (!loading) setTimeout(() => setShowLinks(true), 100); }, [loading]);
 
   const showToast = (message: string, action?: { label: string; onClick: () => void }) => {
@@ -249,7 +247,7 @@ export default function Dashboard() {
       <div className="fixed inset-y-0 left-0 right-0 pointer-events-none mx-auto max-w-6xl border-x border-dashed border-border" />
 
       <div className="max-w-6xl mx-auto relative flex flex-col min-h-screen border-x border-border">
-        <CommandPalette isOpen={isCommandOpen} onClose={() => setCommandOpen(false)} links={links.map(l => ({ id: l.id, url: l.url, title: l.title || l.url }))} nooks={nooks} onNavigateToNook={(id) => setSelectedNook(id)} onCreateNook={() => setShowNewNook(true)} onDeleteLink={deleteLink} />
+        <CommandPalette isOpen={isCommandOpen} onClose={() => setCommandOpen(false)} links={links.map(l => ({ id: l.id, url: l.url, title: l.title || l.url }))} nooks={nooks} onNavigateToNook={(id) => setSelectedNook(id)} onCreateNook={() => setShowNewNook(true)} />
 
         <NavBar
           onToggleTheme={toggleTheme}

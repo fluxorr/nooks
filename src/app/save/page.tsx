@@ -3,11 +3,9 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Check, Loader2, Tag as TagIcon, ArrowRight } from 'lucide-react';
+import { Sparkles, Loader2, Tag as TagIcon, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { NavBar } from '@/components/NavBar';
-import { Tag } from '@/components/ui/Tag';
-import { Kbd } from '@/components/ui/Kbd';
 
 type SaveResult = {
   id: string;
