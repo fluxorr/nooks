@@ -5,9 +5,9 @@ vi.mock('@clerk/nextjs/server', () => ({
 }));
 
 const whereChain = {
-  then: (resolve: (v: unknown) => void) => resolve([{ value: 5 }]),
+  then: (resolve: (_v: unknown) => void) => resolve([{ value: 5 }]),
   groupBy: vi.fn(() => ({
-    then: (resolve: (v: unknown[]) => void) => resolve([]),
+    then: (resolve: (_v: unknown[]) => void) => resolve([]),
   })),
 };
 
