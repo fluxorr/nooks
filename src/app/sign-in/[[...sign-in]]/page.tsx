@@ -24,11 +24,12 @@ export default function SignInPage() {
           </Link>
         </div>
         <SignIn
+          path="/sign-in"
           appearance={{
             elements: {
               card: 'bg-surface border border-border shadow-none rounded-2xl',
-              headerTitle: 'text-foreground text-xl font-semibold tracking-tight hidden',
-              headerSubtitle: 'text-muted text-sm hidden',
+              headerTitle: 'text-foreground text-xl font-semibold tracking-tight',
+              headerSubtitle: 'text-muted text-sm',
               socialButtonsBlockButton:
                 'border border-border rounded-lg hover:bg-surface-alt text-foreground text-sm font-medium transition-colors',
               socialButtonsBlockButtonText: 'text-foreground',
@@ -38,6 +39,7 @@ export default function SignInPage() {
               formFieldInput:
                 'rounded-lg border border-border bg-background text-foreground placeholder:text-foreground-subtle text-sm',
               formFieldInputRoot: 'bg-background',
+              formFieldError: 'text-red-500 text-xs mt-1',
               formButtonPrimary:
                 'rounded-lg bg-accent text-background hover:bg-accent-hover text-sm font-medium transition-colors',
               footerActionText: 'text-muted text-sm',
@@ -45,7 +47,8 @@ export default function SignInPage() {
               identityPreviewText: 'text-foreground text-sm',
               identityPreviewEditButton: 'text-foreground text-sm',
               otpCodeFieldInput:
-                'rounded-lg border border-border bg-background text-foreground',
+                'rounded-lg border border-border bg-background text-foreground text-lg text-center',
+              formResendCodeLink: 'text-foreground hover:underline text-sm',
               formHeaderAction: 'text-foreground',
               alert: 'rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm',
               rootBox: 'w-full',

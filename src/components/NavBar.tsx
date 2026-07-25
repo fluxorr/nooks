@@ -27,8 +27,12 @@ export function NavBar({
                 elements: {
                   avatarBox: 'w-7 h-7 rounded-lg',
                   userButtonPopoverCard: 'bg-surface border border-border shadow-lg rounded-xl',
-                  userButtonPopoverActionItem: 'text-foreground text-sm hover:bg-surface-alt',
+                  userButtonPopoverActionItem: 'text-foreground text-sm hover:bg-surface-alt transition-colors',
                   userButtonPopoverActionItemText: 'text-foreground',
+                  userButtonPopoverActionItemIcon: 'text-muted',
+                  userButtonPopoverSeparator: 'bg-border',
+                  userPreviewText: 'text-foreground text-sm font-medium',
+                  userPreviewSecondaryIdentifier: 'text-muted text-xs',
                   userButtonPopoverFooter: 'hidden',
                 },
               }}
