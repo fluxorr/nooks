@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<LinkItem[] | null>(null);
+  const [stats, setStats] = useState<{ totalLinks: number; totalNooks: number; linksThisWeek: number } | null>(null);
   const [showLinks, setShowLinks] = useState(false);
   const [creatingNook, setCreatingNook] = useState(false);
   const [toast, setToast] = useState<{ message: string; action?: { label: string; onClick: () => void } } | null>(null);
@@ -87,11 +88,18 @@ export default function Dashboard() {
   const fetchData = async () => {
     setFetchError(null);
     try {
-      const res = await fetch('/api/nooks');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setNooks(data.nooks || []);
-      setLinks(data.links || []);
+      const [nooksRes, statsRes] = await Promise.all([
+        fetch('/api/nooks'),
+        fetch('/api/stats'),
+      ]);
+      if (!nooksRes.ok) throw new Error(`HTTP ${nooksRes.status}`);
+      const nooksData = await nooksRes.json();
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setStats(statsData);
+      }
+      setNooks(nooksData.nooks || []);
+      setLinks(nooksData.links || []);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to load data';
       setFetchError(msg);
@@ -475,8 +483,12 @@ export default function Dashboard() {
               {/* Stats Card */}
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 rounded-2xl border border-border bg-gradient-to-br from-surface to-background mb-4">
                 <div className="flex items-center gap-2 text-xs text-muted mb-2"><Clock className="w-3 h-3" /><span>This week</span></div>
-                <div className="text-2xl font-bold text-foreground tabular-nums">{links.filter(l => { const d = new Date(l.createdAt); const now = new Date(); return d.getTime() > now.getTime() - 7 * 24 * 60 * 60 * 1000; }).length}</div>
+                <div className="text-2xl font-bold text-foreground tabular-nums">{stats?.linksThisWeek ?? 0}</div>
                 <div className="text-xs text-muted">new links saved</div>
+                <div className="mt-2 pt-2 border-t border-border flex justify-between text-xs text-muted">
+                  <span>{stats?.totalLinks ?? 0} total</span>
+                  <span>{stats?.totalNooks ?? 0} collections</span>
+                </div>
               </motion.div>
 
               {/* Keyboard Shortcut */}
