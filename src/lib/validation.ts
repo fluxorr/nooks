@@ -28,3 +28,9 @@ export const updateNookSchema = z.object({
   id: z.string().min(1, 'id is required'),
   isPublic: z.boolean(),
 });
+
+export const searchLinksSchema = z.object({
+  q: z.string().min(1, 'Search query is required').max(200),
+  nookId: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(50),
+});
