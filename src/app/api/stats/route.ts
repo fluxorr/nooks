@@ -1,22 +1,26 @@
+import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/db';
 import { links, nooks } from '@/db/schema';
-import { sql, count } from 'drizzle-orm';
+import { sql, eq, count, and } from 'drizzle-orm';
 import { apiError, apiSuccess } from '@/lib/api-middleware';
 
 export async function GET() {
+  const { userId } = auth();
+  if (!userId) return apiError('Unauthorized', 401);
+
   try {
     const db = getDb();
 
     const [totalLinks, totalNooks, thisWeek, linksPerNook] = await Promise.all([
-      db.select({ value: count() }).from(links),
-      db.select({ value: count() }).from(nooks),
+      db.select({ value: count() }).from(links).where(eq(links.userId, userId)),
+      db.select({ value: count() }).from(nooks).where(eq(nooks.userId, userId)),
       db.select({ value: count() }).from(links).where(
-        sql`${links.createdAt} > now() - interval '7 days'`
+        and(eq(links.userId, userId), sql`${links.createdAt} > now() - interval '7 days'`)
       ),
       db.select({
         nookId: links.nookId,
         count: count(),
-      }).from(links).groupBy(links.nookId),
+      }).from(links).where(eq(links.userId, userId)).groupBy(links.nookId),
     ]);
 
     return apiSuccess({

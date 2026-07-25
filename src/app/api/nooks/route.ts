@@ -1,20 +1,28 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/db';
 import { nooks, links } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { createNookSchema, updateNookSchema } from '@/lib/validation';
 import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
 
+function unauthorized() {
+  return apiError('Unauthorized', 401);
+}
+
 export async function GET() {
+  const { userId } = auth();
+  if (!userId) return unauthorized();
+
   try {
     const db = getDb();
-    const [allNooks, allLinks] = await Promise.all([
-      db.select().from(nooks),
-      db.select().from(links).orderBy(links.createdAt),
+    const [userNooks, userLinks] = await Promise.all([
+      db.select().from(nooks).where(eq(nooks.userId, userId)),
+      db.select().from(links).where(eq(links.userId, userId)).orderBy(links.createdAt),
     ]);
 
-    return apiSuccess({ nooks: allNooks, links: allLinks });
+    return apiSuccess({ nooks: userNooks, links: userLinks });
   } catch (error) {
     console.error('Fetch error:', error);
     return apiError('Failed to fetch', 500);
@@ -22,6 +30,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return unauthorized();
+
   try {
     const { json, error } = await requireJson(req);
     if (error) return error;
@@ -38,11 +49,12 @@ export async function POST(req: NextRequest) {
 
     await db.insert(nooks).values({
       id,
+      userId,
       name,
       color: color || '#f5a623',
     });
 
-    return apiSuccess({ id, name, color: color || '#f5a623' });
+    return apiSuccess({ id, userId, name, color: color || '#f5a623' });
   } catch (error) {
     console.error('Create nook error:', error);
     return apiError('Failed to create nook', 500);
@@ -50,6 +62,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return unauthorized();
+
   try {
     const { json, error } = await requireJson(req);
     if (error) return error;
@@ -63,7 +78,11 @@ export async function PATCH(req: NextRequest) {
     const { id, isPublic } = parsed.data;
     const db = getDb();
 
-    const existing = await db.select().from(nooks).where(eq(nooks.id, id)).limit(1);
+    const existing = await db
+      .select()
+      .from(nooks)
+      .where(and(eq(nooks.id, id), eq(nooks.userId, userId)))
+      .limit(1);
     if (existing.length === 0) {
       return apiError('Nook not found', 404);
     }

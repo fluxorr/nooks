@@ -1,11 +1,19 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { moveLinkSchema, deleteLinkSchema } from '@/lib/validation';
 import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
 
+function unauthorized() {
+  return apiError('Unauthorized', 401);
+}
+
 export async function PATCH(req: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return unauthorized();
+
   try {
     const { json, error } = await requireJson(req);
     if (error) return error;
@@ -18,7 +26,10 @@ export async function PATCH(req: NextRequest) {
 
     const { linkId, nookId } = parsed.data;
     const db = getDb();
-    await db.update(links).set({ nookId }).where(eq(links.id, linkId));
+    await db
+      .update(links)
+      .set({ nookId })
+      .where(and(eq(links.id, linkId), eq(links.userId, userId)));
 
     return apiSuccess({ success: true });
   } catch (error) {
@@ -28,6 +39,9 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return unauthorized();
+
   try {
     const { json, error } = await requireJson(req);
     if (error) return error;
@@ -40,7 +54,9 @@ export async function DELETE(req: NextRequest) {
 
     const { linkId } = parsed.data;
     const db = getDb();
-    await db.delete(links).where(eq(links.id, linkId));
+    await db
+      .delete(links)
+      .where(and(eq(links.id, linkId), eq(links.userId, userId)));
 
     return apiSuccess({ success: true });
   } catch (error) {

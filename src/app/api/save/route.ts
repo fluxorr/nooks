@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import OpenAI from 'openai';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
@@ -65,6 +66,9 @@ Respond in JSON format:
 }
 
 export async function POST(req: NextRequest) {
+  const { userId } = auth();
+  if (!userId) return apiError('Unauthorized', 401);
+
   try {
     const { json, error } = await requireJson(req);
     if (error) return error;
@@ -96,6 +100,7 @@ export async function POST(req: NextRequest) {
 
     await getDb().insert(links).values({
       id: linkId,
+      userId,
       url,
       title,
       summary,
