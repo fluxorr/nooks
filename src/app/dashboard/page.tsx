@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
 import { NavBar } from '@/components/NavBar';
