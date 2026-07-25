@@ -239,11 +239,60 @@ export default function Dashboard() {
   const selectedNookData = !selectedNook || selectedNook === 'inbox' ? null : nooks.find(n => n.id === selectedNook);
 
   if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-        <Sparkles className="w-8 h-8 text-muted" />
-      </motion.div>
-    </div>
+    <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <div className="max-w-6xl mx-auto relative flex flex-col min-h-screen border-x border-border">
+        <div className="px-6 sm:px-8 py-3 flex items-center justify-between border-b border-border">
+          <div className="h-5 w-16 rounded bg-surface animate-pulse" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-9 w-9 rounded-lg bg-surface animate-pulse" />
+            <div className="h-9 w-16 rounded-lg bg-surface animate-pulse" />
+            <div className="h-9 w-9 rounded-lg bg-surface animate-pulse" />
+          </div>
+        </div>
+        <div className="flex flex-1 min-h-0">
+          <aside className="w-56 sm:w-60 shrink-0 py-6 pl-6 pr-6 flex flex-col border-r border-border">
+            <div className="h-10 w-full rounded-lg bg-surface animate-pulse mb-8" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-3 w-24 rounded bg-surface animate-pulse" />
+              <div className="h-6 w-6 rounded-lg bg-surface animate-pulse" />
+            </div>
+            <div className="space-y-1 mb-6">
+              <div className="h-10 w-full rounded-xl bg-surface animate-pulse" />
+              <div className="h-10 w-full rounded-xl bg-surface animate-pulse" />
+              <div className="h-10 w-3/4 rounded-xl bg-surface animate-pulse" />
+            </div>
+            <div className="h-28 w-full rounded-2xl bg-surface animate-pulse mb-4" />
+            <div className="h-12 w-full rounded-xl bg-surface animate-pulse" />
+          </aside>
+          <div className="flex-1 min-w-0 p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+              <div className="flex items-center gap-3">
+                <div className="h-7 w-32 rounded bg-surface animate-pulse" />
+                <div className="h-4 w-16 rounded bg-surface animate-pulse hidden sm:block" />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-20 rounded-lg bg-surface animate-pulse" />
+                <div className="h-8 w-20 rounded-lg bg-surface animate-pulse" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="p-4 rounded-xl border border-border bg-surface">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-background border border-border animate-pulse" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="h-4 w-3/4 rounded bg-background animate-pulse" />
+                      <div className="h-3 w-1/2 rounded bg-background animate-pulse" />
+                      <div className="h-3 w-full rounded bg-background animate-pulse mt-3" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 
   const exportLinksAsJson = () => {
