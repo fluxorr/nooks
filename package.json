@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.7.6",
     "@neondatabase/serverless": "^0.9.4",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
