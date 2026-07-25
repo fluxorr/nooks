@@ -11,7 +11,8 @@
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepare": "husky"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.4",
@@ -27,6 +28,10 @@
     "tailwind-merge": "^2.4.0",
     "zod": "^3.25.76"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --fix",
+    "*.{json,md,css}": "prettier --write"
+  },
   "devDependencies": {
     "@types/node": "^20.14.12",
     "@types/react": "^18.3.3",
@@ -35,7 +40,10 @@
     "drizzle-kit": "^0.22.8",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.2.0",
     "postcss": "^8.4.40",
+    "prettier": "^3.9.6",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.5.3",
     "vitest": "^4.1.10"
