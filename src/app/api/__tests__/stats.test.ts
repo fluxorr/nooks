@@ -1,8 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: vi.fn(() => ({ userId: 'test_user_123' })),
+}));
+
+const whereChain = {
+  then: (resolve: (v: unknown) => void) => resolve([{ value: 5 }]),
+  groupBy: vi.fn(() => ({
+    then: (resolve: (v: unknown[]) => void) => resolve([]),
+  })),
+};
+
 const fromChain = {
-  where: vi.fn().mockResolvedValue([{ value: 5 }]),
-  groupBy: vi.fn().mockResolvedValue([]),
+  where: vi.fn(() => whereChain),
+  orderBy: vi.fn(() => whereChain),
 };
 
 const mockDbInstance = {
@@ -22,8 +33,6 @@ async function parseResponse(res: Response) {
 describe('GET /api/stats', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    fromChain.where.mockResolvedValue([{ value: 5 }]);
-    fromChain.groupBy.mockResolvedValue([]);
   });
 
   it('returns stats shape', async () => {

@@ -27,6 +27,10 @@ const mockDbInstance = {
   select: mockSelect([]),
 };
 
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: vi.fn(() => ({ userId: 'test_user_123' })),
+}));
+
 vi.mock('@/db', () => ({
   getDb: vi.fn(() => mockDbInstance),
 }));
