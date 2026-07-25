@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Sparkles, Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
 import { NavBar } from '@/components/NavBar';
@@ -37,6 +37,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<LinkItem[] | null>(null);
   const [showLinks, setShowLinks] = useState(false);
   const [creatingNook, setCreatingNook] = useState(false);
   const [toast, setToast] = useState<{ message: string; action?: { label: string; onClick: () => void } } | null>(null);
@@ -203,6 +205,32 @@ export default function Dashboard() {
     }
   };
 
+  const searchLinks = useCallback(async (query: string) => {
+    if (!query.trim() || query.length < 2) { setSearchResults(null); return; }
+    setSearching(true);
+    try {
+      const params = new URLSearchParams({ q: query });
+      if (selectedNook && selectedNook !== 'inbox') params.set('nookId', selectedNook);
+      const res = await fetch(`/api/links/search?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data.links || null);
+      }
+    } catch {
+      setSearchResults(null);
+    } finally {
+      setSearching(false);
+    }
+  }, [selectedNook]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults(null); return; }
+    const timer = setTimeout(() => searchLinks(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchLinks]);
+
+  const displayLinks = searchResults ?? links;
+
   const getDomain = (url: string) => { try { return new URL(url).hostname.replace('www.', ''); } catch { return url; } };
   const formatDate = (date: string) => {
     const d = new Date(date), now = new Date(), diff = now.getTime() - d.getTime(), days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -222,7 +250,8 @@ export default function Dashboard() {
     }
   };
 
-  const filteredLinks = sortLinks(links.filter(link => {
+  const filteredLinks = sortLinks(displayLinks.filter(link => {
+    if (searchResults) return true;
     const matchesNook = !selectedNook || selectedNook === 'inbox' ? !link.nookId : link.nookId === selectedNook;
     const matchesSearch = !searchQuery || link.title?.toLowerCase().includes(searchQuery.toLowerCase()) || link.summary?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesNook && matchesSearch;
@@ -368,9 +397,12 @@ export default function Dashboard() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink-400/40 text-foreground placeholder:text-muted"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-surface text-[15px] outline-none focus-visible:ring-2 focus-visible:ring-ink-400/40 text-foreground placeholder:text-muted"
                   aria-label="Search links"
                 />
+                {searching && (
+                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted animate-spin" />
+                )}
               </div>
 
               {/* Collections */}
