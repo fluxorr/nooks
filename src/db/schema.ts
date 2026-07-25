@@ -2,6 +2,7 @@ import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const nooks = pgTable('nooks', {
   id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
   name: text('name').notNull(),
   color: text('color').default('#f5a623'),
   isPublic: boolean('is_public').default(false),
@@ -10,6 +11,7 @@ export const nooks = pgTable('nooks', {
 
 export const links = pgTable('links', {
   id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
   url: text('url').notNull(),
   title: text('title'),
   summary: text('summary'),
