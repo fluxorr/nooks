@@ -4,5 +4,7 @@ node_modules
 .env.local
 drizzle
 *.log
-learn.md
 .vercel
+.ui-craft/
+*.md
+!README.md
