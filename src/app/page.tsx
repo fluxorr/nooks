@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Search, Sparkles, ArrowRight, ExternalLink, Bookmark } from 'lucide-react';
+import { SignedIn, SignedOut } from '@clerk/nextjs';
 import { Scales } from '@/components/Scales';
 import { NavBar } from '@/components/NavBar';
 import { Tag } from '@/components/ui/Tag';
@@ -53,12 +54,24 @@ export default function Page() {
           <NavBar
             onToggleTheme={toggleTheme}
             actions={
-              <a
-                href="/dashboard"
-                className="text-sm px-4 py-2 rounded-lg border border-border bg-surface-alt text-foreground hover:bg-accent-light transition-colors"
-              >
-                Dashboard
-              </a>
+              <>
+                <SignedIn>
+                  <a
+                    href="/dashboard"
+                    className="text-sm px-4 py-2 rounded-lg border border-border bg-surface-alt text-foreground hover:bg-accent-light transition-colors"
+                  >
+                    Dashboard
+                  </a>
+                </SignedIn>
+                <SignedOut>
+                  <a
+                    href="/sign-up"
+                    className="text-sm px-4 py-2 rounded-lg border border-border bg-accent text-background hover:bg-accent-hover transition-colors"
+                  >
+                    Get started
+                  </a>
+                </SignedOut>
+              </>
             }
           />
 
@@ -343,18 +356,39 @@ export default function Page() {
                   Start curating your web
                 </h2>
                 <p className="text-[14px] text-muted mb-8 max-w-sm mx-auto">
-                  Free forever. No account needed. Just save, organize, and find.
+                  Save, organize, and find. Free to get started.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <motion.a
-                    href="/dashboard"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-accent text-background hover:bg-accent-hover transition-colors"
-                  >
-                    Open Dashboard
-                    <ArrowRight className="w-4 h-4" />
-                  </motion.a>
+                  <SignedOut>
+                    <motion.a
+                      href="/sign-up"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-accent text-background hover:bg-accent-hover transition-colors"
+                    >
+                      Get started free
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.a>
+                    <motion.a
+                      href="/sign-in"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium border border-border text-foreground hover:bg-surface transition-colors"
+                    >
+                      Sign in
+                    </motion.a>
+                  </SignedOut>
+                  <SignedIn>
+                    <motion.a
+                      href="/dashboard"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-accent text-background hover:bg-accent-hover transition-colors"
+                    >
+                      Open Dashboard
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.a>
+                  </SignedIn>
                 </div>
               </motion.div>
             </div>
@@ -367,7 +401,7 @@ export default function Page() {
                 nooks &middot; save what matters
               </p>
               <p className="text-[13px] text-foreground-tertiary">
-                Free forever
+                Your personal nook of the web
               </p>
             </div>
           </footer>
