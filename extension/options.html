@@ -14,24 +14,12 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       line-height: 1.5;
     }
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    p.intro {
-      color: #a3a3a3;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: #d4d4d4;
-      margin-bottom: 6px;
-    }
-    input[type="url"] {
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    p.intro { color: #a3a3a3; font-size: 14px; margin-bottom: 24px; }
+    .section { margin-bottom: 28px; }
+    .section-title { font-size: 13px; font-weight: 500; color: #d4d4d4; margin-bottom: 8px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: #d4d4d4; margin-bottom: 6px; }
+    input[type="url"], input[type="text"] {
       width: 100%;
       padding: 10px 12px;
       background: #171717;
@@ -41,72 +29,73 @@
       font-size: 14px;
       outline: none;
       transition: border-color 0.15s;
+      font-family: inherit;
     }
-    input[type="url"]:focus {
-      border-color: #f5a623;
-    }
-    .hint {
-      font-size: 12px;
-      color: #525252;
-      margin-top: 6px;
-      margin-bottom: 20px;
-    }
-    .actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
+    input:focus { border-color: #f5a623; }
+    input.error { border-color: #ef4444; }
+    .hint { font-size: 12px; color: #525252; margin-top: 6px; margin-bottom: 12px; }
+    .hint a { color: #f5a623; text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
+    .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+      padding: 10px 16px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
       transition: background 0.15s, opacity 0.15s;
     }
-    .primary {
-      background: #f5a623;
-      color: #0a0a0a;
-    }
+    .primary { background: #f5a623; color: #0a0a0a; }
     .primary:hover { background: #d4921e; }
     .primary:disabled { opacity: 0.6; cursor: default; }
     .secondary {
-      background: transparent;
-      color: #a3a3a3;
+      background: transparent; color: #a3a3a3;
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
     .secondary:hover { color: #fafafa; border-color: rgba(255, 255, 255, 0.25); }
-    .status {
-      margin-top: 16px;
-      font-size: 13px;
-      min-height: 20px;
-    }
+    .status { margin-top: 12px; font-size: 13px; min-height: 20px; }
     .status.ok { color: #22c55e; }
     .status.err { color: #ef4444; }
+    .token-row { display: flex; gap: 8px; align-items: stretch; }
+    .token-row input { flex: 1; font-family: monospace; font-size: 13px; }
+    .err-text { font-size: 12px; color: #ef4444; margin-top: 4px; display: none; }
+    .err-text.show { display: block; }
+    hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 24px 0; }
   </style>
 </head>
 <body>
   <h1>Nooks Extension Settings</h1>
-  <p class="intro">Choose which Nooks server the extension talks to.</p>
+  <p class="intro">Configure how the extension connects to your Nooks server.</p>
 
   <form id="settingsForm">
-    <label for="serverUrl">Nooks server URL</label>
-    <input
-      type="url"
-      id="serverUrl"
-      name="serverUrl"
-      placeholder="https://nooks.vercel.app"
-      required
-    />
-    <p class="hint">Default is <code>http://localhost:3000</code>. Use your deployed URL for production.</p>
+    <div class="section">
+      <label for="serverUrl">Server URL</label>
+      <input type="url" id="serverUrl" name="serverUrl" placeholder="https://nooks.vercel.app" required />
+      <p class="err-text" id="urlError">Enter a valid URL starting with http:// or https://</p>
+      <p class="hint">Default is <code>http://localhost:3000</code>.</p>
 
-    <div class="actions">
-      <button type="submit" class="primary" id="saveBtn">Save</button>
-      <button type="button" class="secondary" id="testBtn">Test connection</button>
+      <div class="actions">
+        <button type="submit" class="primary" id="saveBtn">Save</button>
+        <button type="button" class="secondary" id="testBtn">Test connection</button>
+      </div>
+      <p class="status" id="status"></p>
     </div>
-    <p class="status" id="status"></p>
   </form>
+
+  <hr />
+
+  <div class="section">
+    <label for="apiToken">API Token</label>
+    <div class="token-row">
+      <input type="text" id="apiToken" placeholder="Paste your API token" />
+    </div>
+    <p class="hint">
+      Required for the extension to authenticate with a remote server.
+      Get your token from the <a href="#" id="dashboardTokenLink">dashboard settings</a>.
+    </p>
+    <div class="actions">
+      <button type="button" class="primary" id="saveTokenBtn">Save Token</button>
+      <button type="button" class="secondary" id="clearTokenBtn">Clear</button>
+    </div>
+    <p class="status" id="tokenStatus"></p>
+  </div>
 
   <script src="options.js"></script>
 </body>
