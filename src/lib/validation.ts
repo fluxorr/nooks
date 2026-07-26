@@ -7,6 +7,7 @@ export const urlSchema = z.string().url().refine(
 
 export const saveLinkSchema = z.object({
   url: urlSchema,
+  title: z.string().max(500).optional().nullable(),
   nookId: z.string().min(1).optional().nullable(),
 });
 

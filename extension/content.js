@@ -33,7 +33,7 @@
       btn.textContent = 'Saving...';
 
       try {
-        await chrome.runtime.sendMessage({ action: 'saveLink', url: link.href });
+        await chrome.runtime.sendMessage({ action: 'saveLink', url: link.href, overrides: { title: document.title } });
         btn.textContent = 'Saved!';
         btn.classList.add('nooks-saved');
         setTimeout(() => {
