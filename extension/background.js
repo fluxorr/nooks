@@ -1,15 +1,25 @@
 const DEFAULT_SERVER_URL = 'http://localhost:3000';
 
-async function getServerUrl() {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get(['serverUrl'], (result) => {
-      resolve(result.serverUrl || DEFAULT_SERVER_URL);
-    });
-  });
+function storageGet(keys) {
+  return new Promise(resolve => chrome.storage.sync.get(keys, resolve));
 }
 
-async function saveLink(url, tabId) {
-  const serverUrl = await getServerUrl();
+async function getServerUrl() {
+  const result = await storageGet(['serverUrl']);
+  return result.serverUrl || DEFAULT_SERVER_URL;
+}
+
+async function getApiToken() {
+  const result = await storageGet(['apiToken']);
+  return result.apiToken || '';
+}
+
+function authHeaders(token) {
+  return token ? { 'x-api-token': token } : {};
+}
+
+async function saveLink(url, tabId, overrides) {
+  const [serverUrl, token] = await Promise.all([getServerUrl(), getApiToken()]);
   const maxRetries = 2;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -17,10 +27,12 @@ async function saveLink(url, tabId) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
 
+      const body = { url, ...(overrides || {}) };
+
       const res = await fetch(`${serverUrl}/api/save`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -90,20 +102,36 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'saveLink' && request.url) {
-    saveLink(request.url, sender.tab?.id).then(sendResponse);
+    saveLink(request.url, sender.tab?.id, request.overrides).then(sendResponse);
     return true;
   }
-});
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getServerUrl') {
     getServerUrl().then(sendResponse);
     return true;
   }
   if (request.action === 'setServerUrl') {
-    chrome.storage.sync.set({ serverUrl: request.serverUrl }, () => {
-      sendResponse({ success: true });
-    });
+    chrome.storage.sync.set({ serverUrl: request.serverUrl }, sendResponse);
+    return true;
+  }
+  if (request.action === 'fetchNooks') {
+    (async () => {
+      const [serverUrl, token] = await Promise.all([getServerUrl(), getApiToken()]);
+      try {
+        const res = await fetch(`${serverUrl}/api/nooks`, { headers: { ...authHeaders(token) } });
+        const data = await res.json();
+        sendResponse({ success: true, nooks: data.nooks || [], links: data.links || [] });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+  if (request.action === 'getSettings') {
+    storageGet(['serverUrl', 'apiToken']).then(sendResponse);
+    return true;
+  }
+  if (request.action === 'setApiToken') {
+    chrome.storage.sync.set({ apiToken: request.token }, sendResponse);
     return true;
   }
 });

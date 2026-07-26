@@ -5,7 +5,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      width: 280px;
+      width: 300px;
       background: #0a0a0a;
       color: #fafafa;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -18,96 +18,61 @@
       padding: 12px 16px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .brand { display: flex; align-items: center; gap: 8px; }
     .logo {
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       background: linear-gradient(135deg, #f5a623, #f97316);
       border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
     }
     .logo svg { width: 14px; height: 14px; }
     .title { font-weight: 600; font-size: 14px; }
-    .options-link {
-      color: #737373;
-      padding: 4px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: color 0.15s, background 0.15s;
+    .header-actions { display: flex; align-items: center; gap: 4px; }
+    .icon-btn {
+      color: #737373; padding: 4px; border-radius: 4px;
+      cursor: pointer; transition: color 0.15s, background 0.15s;
+      background: none; border: none;
     }
-    .options-link:hover { color: #fafafa; background: rgba(255,255,255,0.08); }
-    .content { padding: 16px; }
-    .shortcut {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      background: #171717;
-      border-radius: 8px;
-      margin-bottom: 12px;
-    }
-    .shortcut-label { font-size: 12px; color: #737373; }
-    .shortcut-key { display: flex; gap: 4px; }
-    .key {
-      padding: 4px 8px;
-      background: #262626;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 500;
-      border: 1px solid rgba(255,255,255,0.06);
-      min-width: 26px;
-      text-align: center;
-    }
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 12px;
-      font-size: 11px;
-      color: #525252;
-    }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #525252;
-    }
-    .status-dot.ok { background: #22c55e; }
-    .status-dot.err { background: #ef4444; }
+    .icon-btn:hover { color: #fafafa; background: rgba(255,255,255,0.08); }
+    .content { padding: 12px 16px; }
     .btn {
-      width: 100%;
-      padding: 12px;
-      background: #f5a623;
-      color: #0a0a0a;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, opacity 0.15s, transform 0.08s;
+      width: 100%; padding: 10px;
+      background: #f5a623; color: #0a0a0a;
+      border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
     }
     .btn:hover { background: #d4921e; }
-    .btn:active { transform: scale(0.99); }
-    .btn:disabled { opacity: 0.6; cursor: default; transform: none; }
-    .hint {
-      text-align: center;
-      font-size: 11px;
-      color: #525252;
-      margin-top: 12px;
+    .btn:disabled { opacity: 0.6; cursor: default; }
+    .save-row { display: flex; gap: 8px; align-items: center; }
+    .save-row .btn { flex: 1; }
+    .nook-picker { position: relative; }
+    .nook-picker select {
+      padding: 10px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+      background: #171717; color: #fafafa; font-size: 12px; outline: none;
+      cursor: pointer; max-width: 110px; appearance: auto;
     }
-    .server-hint {
-      text-align: center;
-      font-size: 10px;
-      color: #404040;
-      margin-top: 8px;
-      font-family: monospace;
+    .hint { text-align: center; font-size: 11px; color: #525252; margin-top: 10px; }
+    .section-label { font-size: 11px; color: #525252; margin-bottom: 6px; }
+    .recent-list { margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; }
+    .recent-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0; cursor: pointer;
     }
+    .recent-item:hover { opacity: 0.7; }
+    .recent-item a {
+      color: #d4d4d4; text-decoration: none; font-size: 12px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    }
+    .recent-item a:hover { color: #fafafa; }
+    .recent-empty { font-size: 11px; color: #404040; padding: 4px 0; }
+    .status {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 11px; color: #525252;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #525252; }
+    .status-dot.ok { background: #22c55e; }
+    .status-dot.err { background: #ef4444; }
+    .server-hint { text-align: center; font-size: 10px; color: #404040; margin-top: 6px; font-family: monospace; }
   </style>
 </head>
 <body>
@@ -120,26 +85,33 @@
       </div>
       <span class="title">Nooks</span>
     </div>
-    <svg id="optionsLink" class="options-link" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
-    </svg>
+    <div class="header-actions">
+      <button id="dashboardLink" class="icon-btn" title="Open dashboard">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </button>
+      <button id="optionsLink" class="icon-btn" title="Settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
   </div>
   <div class="content">
-    <div class="shortcut">
-      <span class="shortcut-label">Quick save</span>
-      <div class="shortcut-key" id="shortcutKeys">
-        <span class="key">Cmd</span>
-        <span class="key">Shift</span>
-        <span class="key">S</span>
-      </div>
-    </div>
-    <div class="status" id="statusRow" title="Checking connection to Nooks server...">
+    <div class="status" id="statusRow">
       <span class="status-dot" id="statusDot"></span>
       <span id="statusText">Checking server...</span>
     </div>
-    <button class="btn" id="saveBtn">Save Current Page</button>
-    <p class="hint">Or right-click any link → Save to Nooks</p>
+    <div class="save-row">
+      <div class="nook-picker">
+        <select id="nookSelect">
+          <option value="">Inbox</option>
+        </select>
+      </div>
+      <button class="btn" id="saveBtn">Save Page</button>
+    </div>
+    <p class="hint">Right-click any link → Save to Nooks</p>
+    <div class="recent-list" id="recentList">
+      <div class="section-label">RECENT SAVES</div>
+      <div class="recent-empty" id="recentEmpty">No saves yet</div>
+    </div>
     <p class="server-hint" id="serverHint">loading...</p>
   </div>
   <script src="popup.js"></script>
