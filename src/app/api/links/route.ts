@@ -1,17 +1,16 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { moveLinkSchema, deleteLinkSchema } from '@/lib/validation';
-import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
+import { apiError, apiSuccess, requireJson, authenticate } from '@/lib/api-middleware';
 
 function unauthorized() {
   return apiError('Unauthorized', 401);
 }
 
 export async function PATCH(req: NextRequest) {
-  const { userId } = auth();
+  const userId = await authenticate(req);
   if (!userId) return unauthorized();
 
   try {
@@ -39,7 +38,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const { userId } = auth();
+  const userId = await authenticate(req);
   if (!userId) return unauthorized();
 
   try {

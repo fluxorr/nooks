@@ -20,3 +20,9 @@ export const links = pgTable('links', {
   tags: text('tags').array(),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+export const apiTokens = pgTable('api_tokens', {
+  userId: text('user_id').primaryKey(),
+  token: text('token').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});

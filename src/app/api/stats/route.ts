@@ -1,11 +1,11 @@
-import { auth } from '@clerk/nextjs/server';
+import { NextRequest } from 'next/server';
 import { getDb } from '@/db';
 import { links, nooks } from '@/db/schema';
 import { sql, eq, count, and } from 'drizzle-orm';
-import { apiError, apiSuccess } from '@/lib/api-middleware';
+import { apiError, apiSuccess, authenticate } from '@/lib/api-middleware';
 
-export async function GET() {
-  const { userId } = auth();
+export async function GET(req?: NextRequest) {
+  const userId = await authenticate(req);
   if (!userId) return apiError('Unauthorized', 401);
 
   try {

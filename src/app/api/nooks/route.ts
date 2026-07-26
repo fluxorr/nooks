@@ -1,18 +1,17 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { getDb } from '@/db';
 import { nooks, links } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { generateId } from '@/lib/utils';
 import { createNookSchema, updateNookSchema } from '@/lib/validation';
-import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
+import { apiError, apiSuccess, requireJson, authenticate } from '@/lib/api-middleware';
 
 function unauthorized() {
   return apiError('Unauthorized', 401);
 }
 
-export async function GET() {
-  const { userId } = auth();
+export async function GET(req?: NextRequest) {
+  const userId = await authenticate(req);
   if (!userId) return unauthorized();
 
   try {
@@ -30,7 +29,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId } = auth();
+  const userId = await authenticate(req);
   if (!userId) return unauthorized();
 
   try {
@@ -62,7 +61,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { userId } = auth();
+  const userId = await authenticate(req);
   if (!userId) return unauthorized();
 
   try {

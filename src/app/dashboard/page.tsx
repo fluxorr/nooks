@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy } from 'lucide-react';
+import { Plus, Search, Link2, Trash2, Folder, ExternalLink, Globe, Clock, Keyboard, Check, ChevronDown, ArrowUpDown, Download, Copy, KeyRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
 import { NavBar } from '@/components/NavBar';
@@ -237,6 +237,57 @@ export default function Dashboard() {
   }));
 
   const selectedNookData = !selectedNook || selectedNook === 'inbox' ? null : nooks.find(n => n.id === selectedNook);
+
+function ApiTokenSection() {
+  const [token, setToken] = useState<string | null>(null);
+  const [showToken, setShowToken] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/account/token').then(r => r.json()).then(d => { if (d.token) setToken(d.token); }).catch(() => {});
+  }, []);
+
+  const generate = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch('/api/account/token', { method: 'POST' });
+      const d = await r.json();
+      if (d.token) { setToken(d.token); setShowToken(true); }
+    } catch {}
+    setLoading(false);
+  };
+
+  const copy = async () => {
+    if (token) { await navigator.clipboard.writeText(token); }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-4">
+      <div className="p-3 rounded-xl border border-border">
+        <div className="flex items-center gap-2 text-xs text-muted mb-2">
+          <KeyRound className="w-3.5 h-3.5" />
+          <span>API Token</span>
+        </div>
+        {token ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1">
+              <code className="flex-1 text-[10px] font-mono truncate bg-background rounded px-1.5 py-1 border border-border">
+                {showToken ? token : '••••••••••••'}
+              </code>
+              <button onClick={() => setShowToken(!showToken)} className="text-xs text-muted hover:text-foreground shrink-0 px-1">👁</button>
+              <button onClick={copy} className="text-xs text-muted hover:text-foreground shrink-0"><Copy className="w-3 h-3" /></button>
+            </div>
+            <p className="text-[10px] text-muted">Use this in the extension options to authenticate.</p>
+          </div>
+        ) : (
+          <button onClick={generate} disabled={loading} className="w-full text-xs text-muted hover:text-foreground py-1 rounded border border-dashed border-border transition-colors">
+            {loading ? 'Generating...' : 'Generate API token'}
+          </button>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
   if (loading) return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
@@ -517,6 +568,9 @@ export default function Dashboard() {
                   <span>to search</span>
                 </div>
               </motion.div>
+
+              {/* API Token */}
+              <ApiTokenSection />
             </div>
           </aside>
 

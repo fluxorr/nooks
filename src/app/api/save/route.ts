@@ -1,11 +1,10 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import OpenAI from 'openai';
 import { getDb } from '@/db';
 import { links } from '@/db/schema';
 import { generateId } from '@/lib/utils';
 import { saveLinkSchema } from '@/lib/validation';
-import { apiError, apiSuccess, requireJson } from '@/lib/api-middleware';
+import { apiError, apiSuccess, requireJson, authenticate } from '@/lib/api-middleware';
 
 function getOpenAI() {
   return new OpenAI({
@@ -66,7 +65,7 @@ Respond in JSON format:
 }
 
 export async function POST(req: NextRequest) {
-  const { userId } = auth();
+  const userId = await authenticate(req);
   if (!userId) return apiError('Unauthorized', 401);
 
   try {
@@ -79,21 +78,22 @@ export async function POST(req: NextRequest) {
       return apiError('Invalid request', 400, parsed.error.flatten().fieldErrors);
     }
 
-    const { url, nookId } = parsed.data;
+    const { url, nookId, title: providedTitle } = parsed.data;
 
-    const content = await fetchUrlContent(url);
-
+    let title = providedTitle || '';
     let summary = '';
     let tags: string[] = [];
-    let title = '';
 
-    if (content) {
-      const result = await generateSummary(content, url);
-      summary = result.summary;
-      tags = result.tags;
-      title = result.title;
-    } else {
-      title = url;
+    if (!title) {
+      const content = await fetchUrlContent(url);
+      if (content) {
+        const result = await generateSummary(content, url);
+        summary = result.summary;
+        tags = result.tags;
+        title = result.title;
+      } else {
+        title = url;
+      }
     }
 
     const linkId = generateId();
